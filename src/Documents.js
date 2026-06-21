@@ -51,12 +51,12 @@ function Documents() {
 
   // ✅ View file
   const viewFile = (code) => {
-    window.open(`${process.env.BACKEND_APP_API_URL}/documents/${code}/file`, "_blank");
+    window.open(`${process.env.REACT_APP_API_URL}/documents/${code}/file`, "_blank");
   };
 
   // ✅ Download file
   const downloadFile = (code) => {
-    window.open(`${process.env.BACKEND_APP_API_URL}/documents/${code}/file?download=true`);
+    window.open(`${process.env.REACT_APP_API_URL}/documents/${code}/file?download=true`);
   };
 
   return (

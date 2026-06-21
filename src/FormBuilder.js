@@ -123,7 +123,7 @@ export default function FormBuilder() {
                   {/* ✅ DOWNLOAD */}
                   {f.fileUrl && (
                     <a
-                      href={`http://localhost:8080${f.fileUrl}`}
+                      href={`${process.env.REACT_APP_API_URL}${f.fileUrl}`}
                       target="_blank"
                       rel="noreferrer"
                       className="btn btn-sm btn-outline-secondary me-2"
@@ -146,7 +146,7 @@ export default function FormBuilder() {
               {reviewCode === f.code && f.imageUrl && (
                 <div className="mt-3">
                   <img
-                    src={`http://localhost:8080${f.imageUrl}`}
+                    src={`${process.env.REACT_APP_API_URL}${f.imageUrl}`}
                     alt="preview"
                     style={{
                       width: "100%",

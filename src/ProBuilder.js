@@ -161,7 +161,7 @@ function ProBuilder({ user }) {
 
   const downloadPdf = (code) => {
     window.open(
-      `http://localhost:8080/pro/${encodeURIComponent(code)}/pdf`,
+      `http://${process.env.REACT_APP_API_URL}/pro/${encodeURIComponent(code)}/pdf`,
       "_blank",
     );
   };

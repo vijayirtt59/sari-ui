@@ -84,7 +84,7 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
 
   // ✅ DOWNLOAD PDF
   const handleDownload = (code) => {
-    window.open(`http://localhost:8080/docs/${code}/pdf`, "_blank");
+    window.open(`${process.env.REACT_APP_API_URL}/docs/${code}/pdf`, "_blank");
   };
 
   // =========================================

@@ -16,7 +16,7 @@ function RoleProList({ user }) {
   const approvedPros = pros.filter((p) => p.status === "APPROVED");
 
   const downloadPdf = (code) => {
-    window.open(`http://localhost:8080/pro/${code}/pdf`, "_blank");
+    window.open(`http://${process.env.REACT_APP_API_URL}/pro/${code}/pdf`, "_blank");
   };
 
   return (

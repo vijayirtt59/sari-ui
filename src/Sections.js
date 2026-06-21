@@ -67,7 +67,7 @@ function Sections() {
 
   // ✅ DOWNLOAD PDF
   const download = (id) => {
-    window.open(`http://${process.env.BACKEND_APP_API_URL}/sections/${id}/pdf`, "_blank");
+    window.open(`http://${process.env.REACT_APP_API_URL}/sections/${id}/pdf`, "_blank");
   };
 
   const insertSignatureTable = () => {
@@ -206,7 +206,7 @@ function Sections() {
             <button
               className="btn btn-sm btn-secondary me-2"
               onClick={() =>
-                window.open(`http://${process.env.BACKEND_APP_API_URL}${s.imageUrl}`, "_blank")
+                window.open(`http://${process.env.REACT_APP_API_URL}${s.imageUrl}`, "_blank")
               }
             >
               Preview Image
