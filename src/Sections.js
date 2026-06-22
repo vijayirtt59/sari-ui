@@ -324,18 +324,6 @@ const [sectionToDelete, setSectionToDelete] = useState(null);
               </button>
 
               <button
-                className="btn btn-sm btn-secondary me-2"
-                onClick={() =>
-                  window.open(
-                    `${process.env.REACT_APP_API_URL}${s.imageUrl}`,
-                    "_blank",
-                  )
-                }
-              >
-                Preview Image
-              </button>
-
-              <button
   className="btn btn-sm btn-outline-danger"
   onClick={() => askDelete(s)}
 >
