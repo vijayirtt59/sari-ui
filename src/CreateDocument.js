@@ -15,14 +15,14 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
 
   const formatDate = (date) => {
 
-  if (!date) return null;
+    if (!date) return null;
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
-};
+    return `${year}-${month}-${day}`;
+  };
 
   // ✅ find selected document
   const selectedDoc = docs?.find((d) => d.code === selectedCode);
@@ -47,13 +47,13 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
     }
 
     const payload = {
-  code,
-  title,
-  name,
-  content,
+      code,
+      title,
+      name,
+      content,
 
-  date: formatDate(date)
-};
+      date: formatDate(date),
+    };
 
     const call = editingId
       ? api.put(`/docs/${editingId}`, payload)
@@ -73,11 +73,7 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
     setCode(doc.code);
     setTitle(doc.title);
     setName(doc.name);
-    setDate(
-  doc.date
-    ? new Date(doc.date + "T00:00:00")
-    : null
-);
+    setDate(doc.date ? new Date(doc.date + "T00:00:00") : null);
     setContent(doc.content || "");
     setEditingId(doc.id);
   };
@@ -119,12 +115,13 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
             />
 
             <div className="mb-2 text-muted">
-  <b>Fecha:</b>{" "}
-  {selectedDoc.date
-    ? new Date(selectedDoc.date + "T00:00:00")
-        .toLocaleDateString("es-MX")
-    : "-"}
-</div>
+              <b>Fecha:</b>{" "}
+              {selectedDoc.date
+                ? new Date(selectedDoc.date + "T00:00:00").toLocaleDateString(
+                    "es-MX",
+                  )
+                : "-"}
+            </div>
 
             {/* ✅ PDF */}
             <div className="mt-3">
@@ -192,25 +189,22 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              
+
               <div className="mb-3">
+                <label>Document Date</label>
 
-  <label>Document Date</label>
-
-  <DatePicker
-  className="form-control"
-  selected={date}
-  onChange={(selectedDate) =>
-    setDate(selectedDate)
-  }
-  dateFormat="dd/MM/yyyy"
-  placeholderText="Seleccionar fecha"
-/>
-
-</div>
+                <DatePicker
+                  className="form-control"
+                  selected={date}
+                  onChange={(selectedDate) => setDate(selectedDate)}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Seleccionar fecha"
+                />
+              </div>
 
               <div className="mb-3">
                 <label>Content</label>
+
                 <CKEditor
                   editor={ClassicEditor}
                   data={content}

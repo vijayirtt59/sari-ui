@@ -195,16 +195,16 @@ function App() {
                   PROs
                 </button>
                 <button
-  className="
+                  className="
     btn
     btn-sm
     btn-outline-light
     me-2
   "
-  onClick={() => setPage("purchase-orders")}
->
-  Purchase Orders
-</button>
+                  onClick={() => setPage("purchase-orders")}
+                >
+                  Purchase Orders
+                </button>
 
                 <button
                   className="
@@ -419,9 +419,7 @@ function App() {
             {page === "form-builder" && <FormBuilder user={user} />}
 
             {page === "pro-builder" && <ProBuilder user={user} />}
-            {page === "purchase-orders" && (
-  <PurchaseOrderPage user={user} />
-)}
+            {page === "purchase-orders" && <PurchaseOrderPage user={user} />}
 
             {page === "audit" && <AuditLogs />}
 
