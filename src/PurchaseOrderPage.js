@@ -126,7 +126,7 @@ function PurchaseOrderPage({ user }) {
   // ✅ PDF
   const downloadPdf = (id) => {
     window.open(
-      `http://${process.env.REACT_APP_API_URL}/po/${id}/pdf`,
+      `${process.env.REACT_APP_API_URL}/po/${id}/pdf`,
       "_blank"
     );
   };
