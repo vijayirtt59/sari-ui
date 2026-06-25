@@ -19,7 +19,7 @@ function Sections() {
   const [message, setMessage] = useState(null);
   const [showSections, setShowSections] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [sectionToDelete, setSectionToDelete] = useState(null);
+  const [sectionToDelete, setSectionToDelete] = useState(null);
 
   // ✅ LOAD SECTIONS
   const load = () => {
@@ -128,40 +128,35 @@ const [sectionToDelete, setSectionToDelete] = useState(null);
   };
 
   const askDelete = (section) => {
+    setSectionToDelete(section);
 
-  setSectionToDelete(section);
-
-  setShowDeleteModal(true);
-};
+    setShowDeleteModal(true);
+  };
 
   const confirmDelete = () => {
+    api
+      .delete(`/sections/${sectionToDelete.id}`)
+      .then(() => {
+        setMessage({
+          type: "success",
+          text: `Section ${sectionToDelete.code} deleted successfully`,
+        });
 
-  api.delete(`/sections/${sectionToDelete.id}`)
-    .then(() => {
+        setShowDeleteModal(false);
 
-      setMessage({
-        type: "success",
-        text: `Section ${sectionToDelete.code} deleted successfully`
+        setSectionToDelete(null);
+
+        load();
+      })
+      .catch((err) => {
+        setMessage({
+          type: "danger",
+          text: err.response?.data || "Unable to delete section.",
+        });
+
+        setShowDeleteModal(false);
       });
-
-      setShowDeleteModal(false);
-
-      setSectionToDelete(null);
-
-      load();
-    })
-    .catch((err) => {
-
-      setMessage({
-        type: "danger",
-        text:
-          err.response?.data ||
-          "Unable to delete section."
-      });
-
-      setShowDeleteModal(false);
-    });
-};
+  };
 
   return (
     <div className="container mt-4">
@@ -324,11 +319,11 @@ const [sectionToDelete, setSectionToDelete] = useState(null);
               </button>
 
               <button
-  className="btn btn-sm btn-outline-danger"
-  onClick={() => askDelete(s)}
->
-  Delete
-</button>
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => askDelete(s)}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
@@ -354,68 +349,63 @@ const [sectionToDelete, setSectionToDelete] = useState(null);
         </div>
       )}
       {showDeleteModal && (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: "rgba(0,0,0,0.5)",
-      zIndex: 9999,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center"
-    }}
-  >
-    <div
-      className="card shadow"
-      style={{
-        width: "500px",
-        maxWidth: "90%"
-      }}
-    >
-      <div className="card-header bg-danger text-white">
-        Delete Section
-      </div>
-
-      <div className="card-body">
-        <p>
-          Are you sure you want to delete:
-        </p>
-
-        <p>
-          <strong>
-            {sectionToDelete?.code} - {sectionToDelete?.name}
-          </strong>
-        </p>
-
-        <div className="alert alert-warning mb-0">
-          This action cannot be undone.
-        </div>
-      </div>
-
-      <div className="card-footer text-end">
-        <button
-          className="btn btn-secondary me-2"
-          onClick={() => {
-            setShowDeleteModal(false);
-            setSectionToDelete(null);
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          Cancel
-        </button>
+          <div
+            className="card shadow"
+            style={{
+              width: "500px",
+              maxWidth: "90%",
+            }}
+          >
+            <div className="card-header bg-danger text-white">
+              Delete Section
+            </div>
 
-        <button
-          className="btn btn-danger"
-          onClick={confirmDelete}
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <div className="card-body">
+              <p>Are you sure you want to delete:</p>
+
+              <p>
+                <strong>
+                  {sectionToDelete?.code} - {sectionToDelete?.name}
+                </strong>
+              </p>
+
+              <div className="alert alert-warning mb-0">
+                This action cannot be undone.
+              </div>
+            </div>
+
+            <div className="card-footer text-end">
+              <button
+                className="btn btn-secondary me-2"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSectionToDelete(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button className="btn btn-danger" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

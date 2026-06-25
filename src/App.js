@@ -21,9 +21,15 @@ function App() {
 
   const [page, setPage] = useState("home");
 
-  const [showDocs, setShowDocs] = useState(false);
-
   const [docs, setDocs] = useState([]);
+
+  const [showDocuments, setShowDocuments] = useState(false);
+
+  const [showProcedures, setShowProcedures] = useState(false);
+
+  const [showProcurement, setShowProcurement] = useState(false);
+
+  const [showAdmin, setShowAdmin] = useState(false);
 
   // ✅ ROLE SHORTCUT
   const role = user?.systemRole;
@@ -68,7 +74,10 @@ function App() {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest(".dropdown-wrapper")) {
-        setShowDocs(false);
+        setShowDocuments(false);
+        setShowProcedures(false);
+        setShowProcurement(false);
+        setShowAdmin(false);
       }
     };
 
@@ -85,21 +94,26 @@ function App() {
     return (
       <button
         style={{
-          background: page === currentPage ? "#374151" : "transparent",
+          background: page === currentPage ? "#edf4ff" : "#ffffff",
 
-          color: "white",
+          color: page === currentPage ? "#0d6efd" : "#212529",
 
-          padding: "8px 12px",
+          fontWeight: page === currentPage ? "600" : "500",
+
+          padding: "12px 16px",
 
           width: "100%",
 
           textAlign: "left",
 
           border: "none",
+
+          borderBottom: "1px solid #e9ecef",
+
+          transition: "all .2s ease",
         }}
         onClick={() => {
           setPage(page);
-
           setShowDocs(false);
         }}
       >
@@ -116,7 +130,15 @@ function App() {
 
       {user && (
         <nav className="navbar navbar-dark bg-dark px-3">
-          <span className="navbar-brand">SARI System</span>
+          <span
+            className="navbar-brand fw-bold"
+            style={{
+              fontSize: "1.2rem",
+              letterSpacing: ".5px",
+            }}
+          >
+            🛡 SARI System
+          </span>
 
           {/* ✅ MENU */}
 
@@ -134,211 +156,299 @@ function App() {
     "
               onClick={() => setPage("dashboard")}
             >
-              Dashboard
+              📊 Dashboard
             </button>
-
-            {/* ===================================== */}
-            {/* ✅ VIEWER ONLY */}
-            {/* ===================================== */}
-
-            <button
-              className="
-    btn
-    btn-sm
-    btn-outline-info
-    me-2
-  "
-              onClick={() => setPage("role-pros")}
-            >
-              PRO Documents
-            </button>
-
-            {/* ===================================== */}
-            {/* ✅ GOVERNANCE USERS */}
-            {/* ===================================== */}
 
             {role !== "VIEWER" && (
               <>
-                <button
-                  className="
-          btn
-          btn-sm
-          btn-outline-light
-          me-2
-        "
-                  onClick={() => setPage("sections")}
-                >
-                  Sections
-                </button>
-
-                <button
-                  className="
-          btn
-          btn-sm
-          btn-outline-light
-          me-2
-        "
-                  onClick={() => setPage("form-builder")}
-                >
-                  Form Templates
-                </button>
-
-                <button
-                  className="
-          btn
-          btn-sm
-          btn-outline-light
-          me-2
-        "
-                  onClick={() => setPage("pro-builder")}
-                >
-                  PROs
-                </button>
-                <button
-                  className="
-    btn
-    btn-sm
-    btn-outline-light
-    me-2
-  "
-                  onClick={() => setPage("purchase-orders")}
-                >
-                  Purchase Orders
-                </button>
-
-                <button
-                  className="
-          btn
-          btn-sm
-          btn-outline-light
-          me-2
-        "
-                  onClick={() => setPage("audit")}
-                >
-                  Audit
-                </button>
-
-                <button
-                  className="
-          btn
-          btn-sm
-          btn-outline-light
-          me-2
-        "
-                  onClick={() => setPage("improvements")}
-                >
-                  Improvements
-                </button>
-
-                {/* ✅ USERS ONLY FOR ADMIN */}
-
-                {role === "ADMIN" && (
-                  <button
-                    className="
-            btn
-            btn-sm
-            btn-outline-warning
-            me-2
-          "
-                    onClick={() => setPage("users")}
-                  >
-                    Users
-                  </button>
-                )}
-
-                {/* ===================================== */}
-                {/* ✅ POLICIES DROPDOWN */}
-                {/* ===================================== */}
-
                 <div
                   className="
-          position-relative
-          me-2
-          dropdown-wrapper
-        "
+    position-relative
+    me-2
+    dropdown-wrapper
+  "
                 >
                   <button
-                    className="
-            btn
-            btn-sm
-            btn-outline-info
-          "
-                    onClick={() => setShowDocs(!showDocs)}
+                    className="btn btn-info shadow-sm"
+                    style={{
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      minWidth: "220px",
+                    }}
+                    onClick={() => setShowDocuments(!showDocuments)}
                   >
-                    Policies & Governance ▾
+                    📂 Documents
+                    <span className="ms-2">{showDocuments ? "▲" : "▼"}</span>
                   </button>
 
-                  {showDocs && (
+                  {showDocuments && (
                     <div
                       style={{
                         position: "absolute",
-
-                        top: "38px",
-
+                        top: "52px",
                         left: 0,
-
-                        minWidth: "260px",
-
-                        background: "#1f2937",
-
-                        border: "1px solid #444",
-
-                        borderRadius: "6px",
-
+                        width: "320px",
+                        background: "#fff",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        boxShadow: "0 15px 40px rgba(0,0,0,.2)",
                         zIndex: 1000,
-
-                        padding: "6px 0",
                       }}
                     >
-                      {docs.map((doc) => (
-                        <DropdownItem
-                          key={doc.id}
-                          label={`📄 ${doc.code}
-                   - ${doc.name}`}
-                          page={doc.code}
-                          setPage={setPage}
-                          setShowDocs={setShowDocs}
-                          currentPage={page}
-                        />
-                      ))}
-
                       <div
                         style={{
-                          borderTop: "1px solid #444",
-
-                          margin: "6px 0",
+                          background: "linear-gradient(90deg,#0d6efd,#2563eb)",
+                          color: "white",
+                          padding: "12px 16px",
+                          fontWeight: "600",
                         }}
+                      >
+                        📂 Documents
+                      </div>
+
+                      <DropdownItem
+                        label="🛡 Policies & Governance"
+                        page="create-docs"
+                        setPage={setPage}
+                        setShowDocs={setShowDocuments}
+                        currentPage={page}
                       />
 
-                      {/* ✅ ONLY ADMIN CREATE */}
+                      <DropdownItem
+                        label="🗂 Sections"
+                        page="sections"
+                        setPage={setPage}
+                        setShowDocs={setShowDocuments}
+                        currentPage={page}
+                      />
 
-                      {role === "ADMIN" && (
-                        <button
-                          style={{
-                            background: "transparent",
-
-                            color: "#ffc107",
-
-                            padding: "8px 12px",
-
-                            width: "100%",
-
-                            textAlign: "left",
-
-                            border: "none",
-                          }}
-                          onClick={() => {
-                            setPage("create-docs");
-
-                            setShowDocs(false);
-                          }}
-                        >
-                          ➕ Create Document
-                        </button>
-                      )}
+                      <DropdownItem
+                        label="📋 Form Templates"
+                        page="form-builder"
+                        setPage={setPage}
+                        setShowDocs={setShowDocuments}
+                        currentPage={page}
+                      />
                     </div>
                   )}
                 </div>
+
+                <div
+  className="position-relative me-2 dropdown-wrapper"
+>
+  <button
+    className="btn btn-secondary shadow-sm"
+    style={{
+      borderRadius: "12px",
+      fontWeight: "600",
+      minWidth: "200px",
+    }}
+    onClick={() =>
+      setShowProcedures(!showProcedures)
+    }
+  >
+    ⚙️ Procedures
+
+    <span className="ms-2">
+      {showProcedures ? "▲" : "▼"}
+    </span>
+  </button>
+
+  {showProcedures && (
+    <div
+      style={{
+        position: "absolute",
+        top: "52px",
+        left: 0,
+        width: "320px",
+        background: "#fff",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow:
+          "0 15px 40px rgba(0,0,0,.2)",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          background:
+            "linear-gradient(90deg,#6c757d,#495057)",
+          color: "white",
+          padding: "12px 16px",
+          fontWeight: "600",
+        }}
+      >
+        ⚙️ Procedures
+      </div>
+
+      <DropdownItem
+        label="📖 PRO Documents"
+        page="role-pros"
+        setPage={setPage}
+        setShowDocs={setShowProcedures}
+        currentPage={page}
+      />
+
+      <DropdownItem
+        label="⚙️ PRO Builder"
+        page="pro-builder"
+        setPage={setPage}
+        setShowDocs={setShowProcedures}
+        currentPage={page}
+      />
+    </div>
+  )}
+</div>
+
+<div
+  className="
+    position-relative
+    me-2
+    dropdown-wrapper
+  "
+>
+  <button
+    className="btn btn-success shadow-sm"
+    style={{
+      borderRadius: "12px",
+      fontWeight: "600",
+      minWidth: "200px",
+    }}
+    onClick={() =>
+      setShowProcurement(
+        !showProcurement
+      )
+    }
+  >
+    🛒 Procurement
+
+    <span className="ms-2">
+      {showProcurement ? "▲" : "▼"}
+    </span>
+  </button>
+
+  {showProcurement && (
+
+    <div
+      style={{
+        position: "absolute",
+        top: "52px",
+        left: 0,
+        width: "320px",
+        background: "#fff",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow:
+          "0 15px 40px rgba(0,0,0,.2)",
+        zIndex: 1000,
+      }}
+    >
+
+      <div
+        style={{
+          background:
+            "linear-gradient(90deg,#198754,#157347)",
+          color: "white",
+          padding: "12px 16px",
+          fontWeight: "600",
+        }}
+      >
+        🛒 Procurement
+      </div>
+
+      <DropdownItem
+        label="🧾 Purchase Orders"
+        page="purchase-orders"
+        setPage={setPage}
+        setShowDocs={setShowProcurement}
+        currentPage={page}
+      />
+
+    </div>
+
+  )}
+
+</div>
+
+<div
+  className="position-relative me-2 dropdown-wrapper"
+>
+  <button
+    className="btn btn-warning shadow-sm"
+    style={{
+      borderRadius: "12px",
+      fontWeight: "600",
+      minWidth: "200px",
+    }}
+    onClick={() =>
+      setShowAdmin(!showAdmin)
+    }
+  >
+    🛠 Administration
+
+    <span className="ms-2">
+      {showAdmin ? "▲" : "▼"}
+    </span>
+  </button>
+
+  {showAdmin && (
+    <div
+      style={{
+        position: "absolute",
+        top: "52px",
+        left: 0,
+        width: "320px",
+        background: "#fff",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow:
+          "0 15px 40px rgba(0,0,0,.2)",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          background:
+            "linear-gradient(90deg,#ffc107,#ffca2c)",
+          color: "#212529",
+          padding: "12px 16px",
+          fontWeight: "600",
+        }}
+      >
+        🛠 Administration
+      </div>
+
+      <DropdownItem
+        label="🔎 Audit"
+        page="audit"
+        setPage={setPage}
+        setShowDocs={setShowAdmin}
+        currentPage={page}
+      />
+
+      <DropdownItem
+        label="🚀 Improvements"
+        page="improvements"
+        setPage={setPage}
+        setShowDocs={setShowAdmin}
+        currentPage={page}
+      />
+
+      {role === "ADMIN" && (
+        <DropdownItem
+          label="👥 Users"
+          page="users"
+          setPage={setPage}
+          setShowDocs={setShowAdmin}
+          currentPage={page}
+        />
+      )}
+    </div>
+  )}
+</div>
+
+
+                
               </>
             )}
           </div>
@@ -379,7 +489,7 @@ function App() {
               "
               onClick={handleLogout}
             >
-              Logout
+              🚪 Logout
             </button>
           </div>
         </nav>
@@ -429,17 +539,6 @@ function App() {
 
             {page === "create-docs" && (
               <CreateDocument role={role} docs={docs} onCreated={loadDocs} />
-            )}
-
-            {/* ✅ VIEW DOC */}
-
-            {page?.startsWith("DOC") && (
-              <CreateDocument
-                role={role}
-                docs={docs}
-                selectedCode={page}
-                onCreated={loadDocs}
-              />
             )}
 
             {/* ✅ ADMIN ONLY */}
