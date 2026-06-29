@@ -4,7 +4,7 @@ import api from "./api";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-function CreateDocument({ role, docs, onCreated, selectedCode }) {
+function CreateDocument({ user, role, docs, onCreated, selectedCode }) {
   const [code, setCode] = useState("");
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
@@ -31,6 +31,9 @@ function CreateDocument({ role, docs, onCreated, selectedCode }) {
   const [showCreateForm, setShowCreateForm] =
   useState(false);
   const [viewDoc, setViewDoc] = useState(null);
+  const [showImages, setShowImages] = useState(false);
+  const [legacyDocument, setLegacyDocument] =
+  useState(false);
 
   const loadImages = () => {
     api.get("/doc-images").then((res) => {
@@ -254,6 +257,33 @@ setShowCreateForm(false);
   };
 
   const [message, setMessage] = useState(null);
+
+  const workflowAction = (
+  id,
+  action
+) => {
+
+  const userId = user.id;
+
+  api.post(
+  `/docs/${id}/action`,
+  null,
+  {
+    params: {
+      action,
+      userId
+    }
+  }
+)
+    .catch((err) => {
+
+      alert(
+        err.response?.data?.message ||
+        "Workflow action failed"
+      );
+
+    });
+};
 
   // =========================================
   // ✅ VIEW MODE (ALL USERS)
@@ -486,6 +516,28 @@ setShowCreateForm(false);
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {!editingId && (
+  <div className="col-md-4">
+
+    <div className="form-check form-switch">
+
+      <input
+        className="form-check-input"
+        type="checkbox"
+        checked={legacyDocument}
+        onChange={(e) =>
+          setLegacyDocument(e.target.checked)
+        }
+      />
+
+      <label className="form-check-label">
+        Historical Document
+      </label>
+
+    </div>
+
+  </div>
+)}
               {editingId && (
                 <>
                   <div className="alert alert-warning">
@@ -504,7 +556,7 @@ setShowCreateForm(false);
                   </div>
                 </>
               )}
-              {!editingId && (
+              {!editingId && legacyDocument && (
                 <>
                   <hr />
 
@@ -673,11 +725,24 @@ setShowCreateForm(false);
 
               <hr />
 
-              <div className="mt-4">
-                <h5>Document Images</h5>
+              
+<div className="mt-4">
 
-                
-                  <div className="card-body">
+  <div
+    className="card p-2 mb-3"
+    style={{ cursor: "pointer" }}
+    onClick={() =>
+      setShowImages(!showImages)
+    }
+  >
+    <h5 className="mb-0">
+      {showImages ? "▼" : "▶"} Document Images
+    </h5>
+  </div>
+
+  {showImages && (
+ <div className="card-body">
+
                     <div className="row">
                       <div className="col-md-8">
                         <input
@@ -700,7 +765,7 @@ setShowCreateForm(false);
                           Upload Image
                         </button>
                       </div>
-                    </div>
+                    </div> 
 
                     <hr />
 
@@ -748,15 +813,18 @@ setShowCreateForm(false);
                     )}
 
                     <div className="alert alert-info mt-3 mb-0">
-                      Clicking <b>Insert</b> will add:
-                      <div className="mt-2">
-                        <code>[IMAGE:file-name.png]</code>
-                      </div>
-                      into the document.
-                    </div>
-                  
-                </div>
-              </div>
+  Clicking <b>Insert</b> will add:
+  <div className="mt-2">
+    <code>[IMAGE:file-name.png]</code>
+  </div>
+  into the document.
+</div>
+
+</div>
+
+)}
+
+</div>
 
               <button className="btn btn-success">
                 {editingId ? "Update Document" : "Create Document"}
@@ -820,9 +888,79 @@ onMouseLeave={(e) => {
     {doc.name}
   </small>
 
+  <span
+  className={`badge ms-2 ${
+    doc.status === "APPROVED"
+      ? "bg-success"
+      : doc.status === "REVIEWED"
+      ? "bg-info"
+      : doc.status === "PREPARED"
+      ? "bg-warning text-dark"
+      : "bg-secondary"
+  }`}
+>
+  {doc.status}
+</span>
+
 </div>
 
                 <div>
+                  {doc.status === "DRAFT" &&
+ user.systemRoles?.includes("PREPARER") && (
+
+  <button
+    className="btn btn-sm btn-primary me-2"
+    onClick={(e) => {
+      e.stopPropagation();
+      workflowAction(
+        doc.id,
+        "PREPARE"
+      );
+    }}
+  >
+    <i className="bi bi-pencil-square me-1"></i>
+    Prepare
+  </button>
+
+)}
+
+{doc.status === "PREPARED" &&
+ user.systemRoles?.includes("REVIEWER") && (
+
+  <button
+    className="btn btn-sm btn-warning me-2"
+    onClick={(e) => {
+      e.stopPropagation();
+      workflowAction(
+        doc.id,
+        "REVIEW"
+      );
+    }}
+  >
+    <i className="bi bi-search me-1"></i>
+    Review
+  </button>
+
+)}
+
+{doc.status === "REVIEWED" &&
+ user.systemRoles?.includes("APPROVER") && (
+
+  <button
+    className="btn btn-sm btn-success me-2"
+    onClick={(e) => {
+      e.stopPropagation();
+      workflowAction(
+        doc.id,
+        "APPROVE"
+      );
+    }}
+  >
+    <i className="bi bi-check-circle me-1"></i>
+    Approve
+  </button>
+
+)}
                   <button
                     className="btn btn-sm btn-outline-success me-2"
                     onClick={(e) => {

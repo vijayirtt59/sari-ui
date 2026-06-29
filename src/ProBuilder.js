@@ -3,8 +3,7 @@ import api from "./api";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { canEdit, canPrepare, canReview, canApprove } from "./permissions";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Editor } from "@tinymce/tinymce-react";
 
 function ProBuilder({ user }) {
   const [data, setData] = useState({
@@ -16,6 +15,7 @@ function ProBuilder({ user }) {
     alcance: "",
     procedimiento: "",
   });
+  
 
   const canPreview =
     data.code?.trim() &&
@@ -32,6 +32,24 @@ function ProBuilder({ user }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedPro, setSelectedPro] = useState(null);
   const [editingCode, setEditingCode] = useState(null);
+
+  const [preparedBy, setPreparedBy] = useState("");
+const [reviewedBy, setReviewedBy] = useState("");
+const [approvedBy, setApprovedBy] = useState("");
+
+const [preparedDate, setPreparedDate] = useState("");
+const [reviewedDate, setReviewedDate] = useState("");
+const [approvedDate, setApprovedDate] = useState("");
+const [legacyDocument, setLegacyDocument] =
+  useState(false);
+
+const [changes, setChanges] = useState([
+  {
+    version: 0,
+    description: "Emisión inicial",
+    changeDate: null,
+  },
+]);
 
   const [forms, setForms] = useState([]);
 
@@ -62,8 +80,16 @@ function ProBuilder({ user }) {
   }, []);
 
   const loadPros = () => {
-    api.get("/pro").then((res) => setPros(res.data));
-  };
+  api.get("/pro")
+    .then((res) => {
+      console.log("PRO RESPONSE", res.data);
+      setPros(Array.isArray(res.data) ? res.data : []);
+    })
+    .catch((err) => {
+      console.error(err);
+      setPros([]);
+    });
+};
 
   // ✅ CKEDITOR CONFIG
   const editorConfig = {
@@ -85,6 +111,15 @@ function ProBuilder({ user }) {
       "undo",
       "redo",
     ],
+
+list: {
+    properties: {
+      styles: true,
+      startIndex: true,
+      reversed: true,
+    },
+  },
+
   };
 
   // ✅ SAVE (CREATE)
@@ -95,14 +130,51 @@ function ProBuilder({ user }) {
         return;
       }
 
+      if (
+  editingCode &&
+  !changeDescription.trim()
+) {
+  alert(
+    "Change Description is required"
+  );
+  return;
+}
+
+const invalidRegistro = registros.find(
+  (r) => !r.responsableResguardo
+);
+
+if (invalidRegistro) {
+  alert(
+    "All registros must have a Responsable de Resguardo selected."
+  );
+  return;
+}
+
       const username = `${user.firstName} ${user.lastName}`;
 
       const payload = {
-        ...data,
-        registros,
-        updatedBy: username,
-        sectionIds: selectedSections.map((s) => s.id),
-      };
+  ...data,
+
+  preparedBy,
+  reviewedBy,
+  approvedBy,
+
+  preparedDate,
+  reviewedDate,
+  approvedDate,
+
+  changes,
+  changeDescription,
+
+  registros,
+
+  updatedBy: username,
+
+  sectionIds: selectedSections.map(
+    (s) => s.id
+  ),
+};
 
       console.log("editingCode", editingCode);
 
@@ -125,6 +197,7 @@ function ProBuilder({ user }) {
         alcance: "",
         procedimiento: "",
       });
+      setChangeDescription("");
 
       setEditingCode(null);
 
@@ -142,11 +215,25 @@ function ProBuilder({ user }) {
 
   // ✅ PREVIEW (IMPORTANT)
   const previewDoc = () => {
-    api
-      .post("/pro/preview", {
-        ...data,
-        sectionIds: selectedSections.map((s) => s.id),
-      })
+    api.post("/pro/preview", {
+  ...data,
+
+  preparedBy,
+  reviewedBy,
+  approvedBy,
+
+  preparedDate,
+  reviewedDate,
+  approvedDate,
+
+  changes,
+
+  registros,
+
+  sectionIds: selectedSections.map(
+    s => s.id
+  )
+})
       .then((res) => {
         setPreview(res.data);
       });
@@ -167,18 +254,35 @@ function ProBuilder({ user }) {
   };
 
   const action = (code, type) => {
-    const username = `${user.firstName} ${user.lastName}`;
 
-    api
-      .post(`/pro/${code}/action?action=${type}&user=${username}`)
-      .then(() => {
-        alert("✅ Updated: " + type);
-        loadPros();
-      })
-      .catch(() => {
-        alert("❌ Failed action");
-      });
-  };
+  api
+    .post(
+      `/pro/${code}/action`,
+      null,
+      {
+        params: {
+          action: type,
+          userId: user.id
+        }
+      }
+    )
+    .then(() => {
+
+      alert("✅ Updated: " + type);
+
+      loadPros();
+
+    })
+    .catch((err) => {
+
+      alert(
+        err.response?.data?.message ||
+        "Action failed"
+      );
+
+    });
+
+};
 
   const previewFromList = (p) => {
     api.post("/pro/preview", p).then((res) => {
@@ -214,6 +318,25 @@ function ProBuilder({ user }) {
     );
 
     setSelectedSections([]); // ✅ reset sections (optional fix)
+    setPreparedBy(p.preparedBy || "");
+setReviewedBy(p.reviewedBy || "");
+setApprovedBy(p.approvedBy || "");
+
+setPreparedDate(p.preparedDate || "");
+setReviewedDate(p.reviewedDate || "");
+setApprovedDate(p.approvedDate || "");
+
+setChanges(
+  p.changes?.length
+    ? p.changes
+    : [
+        {
+          version: 0,
+          description: "Initial Release",
+          changeDate: null,
+        },
+      ]
+);
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -229,20 +352,6 @@ function ProBuilder({ user }) {
     setData({
       ...data,
       procedimiento: data.procedimiento + `<p>[[SECTION:${s.code}]]</p>`,
-    });
-  };
-
-  const insertFirmas = () => {
-    setData({
-      ...data,
-      procedimiento: data.procedimiento + "<p>[[FIRMAS]]</p>",
-    });
-  };
-
-  const insertControlCambios = () => {
-    setData({
-      ...data,
-      procedimiento: data.procedimiento + "<p>[[CONTROL_CAMBIOS]]</p>",
     });
   };
 
@@ -280,6 +389,40 @@ function ProBuilder({ user }) {
     setRegistros(updated);
   };
 
+  const addChange = () => {
+  setChanges([
+    ...changes,
+    {
+      version: changes.length,
+      description: "",
+      changeDate: null,
+    },
+  ]);
+};
+
+const updateChange = (
+  index,
+  field,
+  value
+) => {
+  const copy = [...changes];
+
+  copy[index][field] = value;
+
+  setChanges(copy);
+};
+
+const removeChange = (index) => {
+  setChanges(
+    changes.filter(
+      (_, i) => i !== index
+    )
+  );
+};
+
+const [changeDescription, setChangeDescription] =
+  useState("");
+
   return (
     <div className="container mt-4">
       {/* ========================================= */}
@@ -287,16 +430,40 @@ function ProBuilder({ user }) {
       {/* ========================================= */}
 
       {canEdit(user) && (
-        <div className="card shadow-lg mb-4">
-          <div className="card-header bg-primary text-white">
-            <h5 className="mb-0">
-              {editingCode
-                ? `Edit PRO (${editingCode})`
-                : "Create PRO Document"}
-            </h5>
-          </div>
 
-          <div className="card-body">
+  <div className="accordion mb-4">
+
+    <div className="accordion-item">
+
+      <h2 className="accordion-header">
+
+        <button
+  className="accordion-button collapsed"
+  style={{
+    background:
+      "linear-gradient(135deg,#1e3a8a,#2563eb)",
+    color: "white",
+    fontWeight: "600",
+    fontSize: "1.1rem"
+  }}      
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#proBuilder"
+        >
+            <i className="bi bi-journal-text me-2"></i>
+          {editingCode
+            ? `Edit PRO (${editingCode})`
+            : "Create PRO Document"}
+        </button>
+
+      </h2>
+
+      <div
+        id="proBuilder"
+        className="accordion-collapse collapse"
+      >
+
+        <div className="accordion-body">
             {/* ✅ BASIC FIELDS */}
             <div className="row">
               <div className="col-md-4">
@@ -326,23 +493,294 @@ function ProBuilder({ user }) {
                   onChange={(e) => setData({ ...data, title: e.target.value })}
                 />
               </div>
-              <div className="col-md-4">
-                <DatePicker
-                  className="form-control mb-2"
-                  selected={
-                    data.documentDate ? new Date(data.documentDate) : null
-                  }
-                  onChange={(date) =>
-                    setData({
-                      ...data,
-                      documentDate: date?.toISOString().split("T")[0],
-                    })
-                  }
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="Select document date"
-                />
-              </div>
+              <div className="row align-items-end">
+
+  <div className="col-md-4">
+    <label className="form-label">
+      Document Date
+    </label>
+
+    <input
+      type="date"
+      className="form-control"
+      value={data.documentDate || ""}
+      onChange={(e) =>
+        setData({
+          ...data,
+          documentDate: e.target.value,
+        })
+      }
+    />
+  </div>
+
+{!editingCode && (
+  <div className="col-md-4">
+
+  <div className="form-check form-switch">
+
+    <input
+      className="form-check-input"
+      type="checkbox"
+      checked={legacyDocument}
+      onChange={(e) =>
+        setLegacyDocument(
+          e.target.checked
+        )
+      }
+    />
+
+    <label className="form-check-label">
+      Historical Document
+    </label>
+
+    {legacyDocument ? (
+      <span className="badge bg-success ms-2">
+        APPROVED
+      </span>
+    ) : (
+      <span className="badge bg-warning text-dark ms-2">
+        DRAFT
+      </span>
+    )}
+
+  </div>
+
+</div>)}
+
+</div>
             </div>
+
+{!editingCode && legacyDocument && (
+  <>
+
+            <hr />
+
+<h5>Workflow Information</h5>
+
+<div className="row">
+
+  <div className="col-md-4">
+
+    <label>Prepared By</label>
+
+    <input
+      className="form-control"
+      value={preparedBy}
+      onChange={(e) =>
+        setPreparedBy(e.target.value)
+      }
+    />
+
+    <label className="mt-2">
+      Prepared Date
+    </label>
+
+    <input
+      type="date"
+      className="form-control"
+      value={preparedDate}
+      onChange={(e) =>
+        setPreparedDate(
+          e.target.value
+        )
+      }
+    />
+
+  </div>
+
+  <div className="col-md-4">
+
+    <label>Reviewed By</label>
+
+    <input
+      className="form-control"
+      value={reviewedBy}
+      onChange={(e) =>
+        setReviewedBy(e.target.value)
+      }
+    />
+
+    <label className="mt-2">
+      Reviewed Date
+    </label>
+
+    <input
+      type="date"
+      className="form-control"
+      value={reviewedDate}
+      onChange={(e) =>
+        setReviewedDate(
+          e.target.value
+        )
+      }
+    />
+
+  </div>
+
+  <div className="col-md-4">
+
+    <label>Approved By</label>
+
+    <input
+      className="form-control"
+      value={approvedBy}
+      onChange={(e) =>
+        setApprovedBy(e.target.value)
+      }
+    />
+
+    <label className="mt-2">
+      Approved Date
+    </label>
+
+    <input
+      type="date"
+      className="form-control"
+      value={approvedDate}
+      onChange={(e) =>
+        setApprovedDate(
+          e.target.value
+        )
+      }
+    />
+
+  </div>
+
+</div>
+
+</>
+)}
+
+{!editingCode && legacyDocument && (
+  <>
+<hr />
+
+<h5>Change History</h5>
+
+<div className="table-responsive">
+
+  <table className="table table-bordered">
+
+    <thead className="table-light">
+
+      <tr>
+        <th>Version</th>
+        <th>Description</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      {changes.map((change, index) => (
+
+        <tr key={index}>
+
+          <td>
+            <input
+              type="number"
+              className="form-control"
+              value={change.version}
+              onChange={(e) =>
+                updateChange(
+                  index,
+                  "version",
+                  Number(e.target.value)
+                )
+              }
+            />
+          </td>
+
+          <td>
+            <input
+              className="form-control"
+              value={change.description}
+              onChange={(e) =>
+                updateChange(
+                  index,
+                  "description",
+                  e.target.value
+                )
+              }
+            />
+          </td>
+
+          <td>
+            <input
+              type="date"
+              className="form-control"
+              value={change.changeDate || ""}
+              onChange={(e) =>
+                updateChange(
+                  index,
+                  "changeDate",
+                  e.target.value
+                )
+              }
+            />
+          </td>
+
+          <td>
+            <button
+              className="btn btn-sm btn-danger"
+              onClick={() =>
+                removeChange(index)
+              }
+            >
+              Remove
+            </button>
+          </td>
+
+        </tr>
+
+      ))}
+
+    </tbody>
+
+  </table>
+
+</div>
+
+</>
+)}
+{editingCode && (
+  <>
+    <hr />
+
+    <h5>Revision Information</h5>
+
+    <div className="alert alert-warning">
+      Saving this document will create a new
+      revision and restart the approval workflow.
+    </div>
+
+    <label>
+      Change Description *
+    </label>
+
+    <textarea
+      className="form-control"
+      rows="3"
+      value={changeDescription}
+      onChange={(e) =>
+        setChangeDescription(
+          e.target.value
+        )
+      }
+    />
+
+  </>
+)}
+
+<button
+  className="btn btn-outline-primary btn-sm"
+  onClick={addChange}
+>
+  + Add Change
+</button>
+
 
             {/* ✅ EDITORS */}
             <div className="mt-3">
@@ -371,15 +809,51 @@ function ProBuilder({ user }) {
               <div className="mb-2"></div>
 
               <h6 className="mt-4">PROCEDIMIENTO</h6>
-              <CKEditor
-                key={"procedimiento_" + data.code}
-                editor={ClassicEditor}
-                config={editorConfig}
-                data={data.procedimiento}
-                onChange={(e, editor) =>
-                  setData({ ...data, procedimiento: editor.getData() })
-                }
-              />
+
+<Editor apiKey='0rofizmtdt5urrczcvs5wlzkkd3h8eckur9oojmzpio0g8wr'
+  value={data.procedimiento}
+  onEditorChange={(content) =>
+    setData({
+      ...data,
+      procedimiento: content,
+    })
+  }
+  init={{
+    height: 600,
+
+    menubar: true,
+
+    plugins: [
+      "lists",
+      "table",
+      "link",
+      "code",
+      "fullscreen",
+      "searchreplace",
+      "wordcount",
+    ],
+
+    toolbar:
+      "undo redo | " +
+      "styles | " +
+      "bold italic underline | " +
+      "bullist numlist | " +
+      "table | " +
+      "link | " +
+      "code fullscreen",
+
+    table_default_attributes: {
+      border: "1",
+    },
+
+    content_style: `
+      body {
+        font-family:Arial,sans-serif;
+        font-size:14px;
+      }
+    `,
+  }}
+/>
               <h6 className="mt-4">REGISTROS</h6>
 
               <div className="table-responsive">
@@ -645,22 +1119,6 @@ function ProBuilder({ user }) {
               </div>
             </div>
 
-            <h5 className="mt-4">Templates</h5>
-
-            <button
-              className="btn btn-sm btn-outline-dark me-2"
-              onClick={insertFirmas}
-            >
-              Insert Firmas
-            </button>
-
-            <button
-              className="btn btn-sm btn-outline-dark me-2"
-              onClick={insertControlCambios}
-            >
-              Insert Control Cambios
-            </button>
-
             {/* ✅ ACTION BUTTONS */}
             <div className="mt-4">
               <button
@@ -684,6 +1142,38 @@ function ProBuilder({ user }) {
                       alcance: "",
                       procedimiento: "",
                     });
+
+setRegistros([
+    {
+      codigo: "",
+      nombre: "",
+      almacenamiento: "",
+      tiempoRetencion: "",
+      responsableResguardo: "",
+    },
+  ]);
+
+  setChangeDescription("");
+
+setPreparedBy("");
+  setReviewedBy("");
+  setApprovedBy("");
+
+  setPreparedDate("");
+  setReviewedDate("");
+  setApprovedDate("");
+
+
+  setChanges([
+    {
+      version: 0,
+      description: "Emisión inicial",
+      changeDate: null,
+    },
+  ]);
+
+  setPreview(null);
+  setSelectedSections([]);
                   }}
                 >
                   Cancel
@@ -722,9 +1212,15 @@ function ProBuilder({ user }) {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )}
+                  </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
       {/* ========================================= */}
       {/* ✅ PRO LIST */}
@@ -738,18 +1234,41 @@ function ProBuilder({ user }) {
         <div className="card-body">
           {pros.map((p) => (
             <div
-              key={p.id}
-              className="border rounded p-3 mb-3"
-              style={{ background: "#fafafa" }}
-            >
+  key={p.id}
+  className="
+    card
+    shadow-sm
+    border-0
+    mb-3
+  "
+  style={{ background: "#fafafa" }}
+>
+            
               {/* ✅ TITLE ROW */}
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <b>{p.code}</b> {p.name} - {p.title}
-                </div>
-                <div className="text-muted mt-1" style={{ fontSize: "12px" }}>
-                  Last updated by: {p.lastModifiedBy || "-"} on{" "}
-                  {p.lastModifiedDate || "-"}
+                  <b>{p.code}</b> {p.name}
+                
+                  <div className="small text-muted mt-2">
+
+  {[
+    p.preparedBy &&
+      `📝 ${p.preparedBy}`,
+
+    p.reviewedBy &&
+      `🔍 ${p.reviewedBy}`,
+
+    p.approvedBy &&
+      `✅ ${p.approvedBy}`
+
+  ]
+    .filter(Boolean)
+    .join(" | ") ||
+
+    "No workflow activity yet"}
+
+</div>
+                
                 </div>
 
                 {/* ✅ STATUS BADGE */}
@@ -794,7 +1313,8 @@ function ProBuilder({ user }) {
                     className="btn btn-sm btn-primary me-2"
                     onClick={() => action(p.code, "PREPARE")}
                   >
-                    Prepare
+                    <i className="bi bi-pencil-square me-1"></i>
+Prepare
                   </button>
                 )}
 
@@ -803,7 +1323,8 @@ function ProBuilder({ user }) {
                     className="btn btn-sm btn-warning me-2"
                     onClick={() => action(p.code, "REVIEW")}
                   >
-                    Review
+                    <i className="bi bi-clipboard-check me-1"></i>
+Review
                   </button>
                 )}
 
@@ -812,14 +1333,14 @@ function ProBuilder({ user }) {
                     className="btn btn-sm btn-success me-2"
                     onClick={() => action(p.code, "APPROVE")}
                   >
-                    Approve
+                    <i className="bi bi-shield-check me-1"></i>
+Approve
                   </button>
                 )}
 
                 {/* ✅ PDF */}
                 <button
                   className="btn btn-sm btn-outline-success me-2"
-                  disabled={p.status !== "APPROVED"}
                   onClick={() => downloadPdf(p.code)}
                 >
                   PDF

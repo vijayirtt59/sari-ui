@@ -4,16 +4,36 @@ import { businessRoleLabels } from "./businessRoleLabels";
 
 function RoleProList({ user }) {
   const [pros, setPros] = useState([]);
+  const [myPros, setMyPros] = useState([]);
 
   useEffect(() => {
-    api.get("/pro").then((res) => {
+
+  api.get("/pro")
+    .then((res) => {
       setPros(res.data);
+    })
+    .catch((err) => {
+      console.error(err);
+      setPros([]);
     });
-  }, []);
 
-  const myPros = pros.filter((p) => p.responsibleRole === user.businessRole);
+  api
+    .get(`/pro/by-role/${user.businessRole}`)
+    .then((res) => {
+      setMyPros(res.data);
+    })
+    .catch((err) => {
+      console.warn(
+        "Unable to load role-specific PROs",
+        err
+      );
 
-  const approvedPros = pros.filter((p) => p.status === "APPROVED");
+      setMyPros([]);
+    });
+
+}, [user.businessRole]);
+
+  const allPros = pros;
 
   const downloadPdf = (code) => {
     window.open(`${process.env.REACT_APP_API_URL}/pro/${code}/pdf`, "_blank");
@@ -55,8 +75,28 @@ function RoleProList({ user }) {
               "
               >
                 <div>
-                  <b>{p.code}</b> {p.title}
-                </div>
+  <b>{p.code}</b> {p.title}
+
+  <div className="mt-1">
+
+
+  {p.registros
+    ?.filter(
+      (r) =>
+        r.responsableResguardo ===
+        user.businessRole
+    )
+    .map((r, index) => (
+      <span
+        key={index}
+        className="badge bg-secondary me-1"
+      >
+        {r.nombre}
+      </span>
+    ))}
+
+</div>
+</div>
 
                 <span
                   className={`badge ${
@@ -80,7 +120,6 @@ function RoleProList({ user }) {
                     btn-sm
                     btn-outline-success
                   "
-                  disabled={p.status !== "APPROVED"}
                   onClick={() => downloadPdf(p.code)}
                 >
                   PDF
@@ -101,7 +140,7 @@ function RoleProList({ user }) {
         </div>
 
         <div className="card-body">
-          {approvedPros.map((p) => (
+          {allPros.map((p) => (
             <div
               key={p.id}
               className="

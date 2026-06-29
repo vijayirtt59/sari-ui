@@ -19,7 +19,9 @@ function App() {
   // ✅ FULL USER OBJECT
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
-  const [page, setPage] = useState("home");
+  const [page, setPage] = useState(
+  user ? "dashboard" : "home"
+);
 
   const [docs, setDocs] = useState([]);
 
@@ -66,6 +68,14 @@ function App() {
   useEffect(() => {
     loadDocs();
   }, []);
+
+  useEffect(() => {
+
+  if (user && page === "home") {
+    setPage("dashboard");
+  }
+
+}, [user, page]);
 
   // =========================================
   // ✅ CLOSE DROPDOWN
@@ -538,7 +548,7 @@ function App() {
             {/* ✅ CREATE DOC */}
 
             {page === "create-docs" && (
-              <CreateDocument role={role} docs={docs} onCreated={loadDocs} />
+              <CreateDocument user={user} role={role} docs={docs} onCreated={loadDocs} />
             )}
 
             {/* ✅ ADMIN ONLY */}
