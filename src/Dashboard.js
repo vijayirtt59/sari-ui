@@ -82,7 +82,10 @@ useState({
   <div className="card-body p-4">
 
     <h2 className="fw-bold mb-1">
-  Welcome, {user.firstName}
+  Welcome, {user.professionalTitle
+    ? `${user.professionalTitle} ${user.firstName} ${user.lastName}`
+    : `${user.firstName} ${user.lastName}`
+  }
 </h2>
 
 <div className="mb-2">

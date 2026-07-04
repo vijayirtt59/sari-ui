@@ -774,12 +774,14 @@ const [changeDescription, setChangeDescription] =
   </>
 )}
 
+{(legacyDocument || editingCode) && (
 <button
   className="btn btn-outline-primary btn-sm"
   onClick={addChange}
 >
   + Add Change
 </button>
+)}
 
 
             {/* ✅ EDITORS */}
@@ -1249,23 +1251,30 @@ setPreparedBy("");
                 <div>
                   <b>{p.code}</b> {p.name}
                 
-                  <div className="small text-muted mt-2">
+                  <div
+  className="
+    d-flex
+    flex-wrap
+    gap-3
+    small
+    text-muted
+    mt-2
+  "
+>
 
-  {[
-    p.preparedBy &&
-      `📝 ${p.preparedBy}`,
+  Prepared:
+  {" "}
+  {p.preparedBy || "-"}
+  {" | "}
 
-    p.reviewedBy &&
-      `🔍 ${p.reviewedBy}`,
+  Reviewed:
+  {" "}
+  {p.reviewedBy || "-"}
+  {" | "}
 
-    p.approvedBy &&
-      `✅ ${p.approvedBy}`
-
-  ]
-    .filter(Boolean)
-    .join(" | ") ||
-
-    "No workflow activity yet"}
+  Approved:
+  {" "}
+  {p.approvedBy || "-"}
 
 </div>
                 

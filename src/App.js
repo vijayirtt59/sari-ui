@@ -25,13 +25,7 @@ function App() {
 
   const [docs, setDocs] = useState([]);
 
-  const [showDocuments, setShowDocuments] = useState(false);
-
-  const [showProcedures, setShowProcedures] = useState(false);
-
-  const [showProcurement, setShowProcurement] = useState(false);
-
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   // ✅ ROLE SHORTCUT
   const role = user?.systemRole;
@@ -84,10 +78,7 @@ function App() {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest(".dropdown-wrapper")) {
-        setShowDocuments(false);
-        setShowProcedures(false);
-        setShowProcurement(false);
-        setShowAdmin(false);
+        setActiveDropdown(null);
       }
     };
 
@@ -96,11 +87,47 @@ function App() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+  window.history.pushState(
+    null,
+    "",
+    window.location.href
+  );
+
+  const handlePopState = () => {
+
+    const leave = window.confirm(
+      "You have unsaved changes. Are you sure you want to leave?"
+    );
+
+    if (leave) {
+      window.history.back();
+    } else {
+      window.history.pushState(
+        null,
+        "",
+        window.location.href
+      );
+    }
+  };
+
+  window.addEventListener(
+    "popstate",
+    handlePopState
+  );
+
+  return () =>
+    window.removeEventListener(
+      "popstate",
+      handlePopState
+    );
+}, []);
+
   // =========================================
   // ✅ DROPDOWN ITEM
   // =========================================
 
-  function DropdownItem({ label, page, setPage, setShowDocs, currentPage }) {
+  function DropdownItem({ label, page, setPage, closeMenu, currentPage }) {
     return (
       <button
         style={{
@@ -124,7 +151,7 @@ function App() {
         }}
         onClick={() => {
           setPage(page);
-          setShowDocs(false);
+          closeMenu();
         }}
       >
         {label}
@@ -185,13 +212,19 @@ function App() {
                       fontWeight: "600",
                       minWidth: "220px",
                     }}
-                    onClick={() => setShowDocuments(!showDocuments)}
+                    onClick={() =>
+  setActiveDropdown(
+    activeDropdown === "documents"
+      ? null
+      : "documents"
+  )
+}
                   >
                     📂 Documents
-                    <span className="ms-2">{showDocuments ? "▲" : "▼"}</span>
+                    <span className="ms-2">{activeDropdown === "documents" ? "▲" : "▼"}</span>
                   </button>
 
-                  {showDocuments && (
+                  {activeDropdown === "documents" && (
                     <div
                       style={{
                         position: "absolute",
@@ -220,7 +253,7 @@ function App() {
                         label="🛡 Policies & Governance"
                         page="create-docs"
                         setPage={setPage}
-                        setShowDocs={setShowDocuments}
+                          closeMenu={() => setActiveDropdown(null)}
                         currentPage={page}
                       />
 
@@ -228,7 +261,7 @@ function App() {
                         label="🗂 Sections"
                         page="sections"
                         setPage={setPage}
-                        setShowDocs={setShowDocuments}
+                        closeMenu={() => setActiveDropdown(null)}
                         currentPage={page}
                       />
 
@@ -236,7 +269,7 @@ function App() {
                         label="📋 Form Templates"
                         page="form-builder"
                         setPage={setPage}
-                        setShowDocs={setShowDocuments}
+                        closeMenu={() => setActiveDropdown(null)}
                         currentPage={page}
                       />
                     </div>
@@ -254,17 +287,21 @@ function App() {
       minWidth: "200px",
     }}
     onClick={() =>
-      setShowProcedures(!showProcedures)
-    }
+  setActiveDropdown(
+    activeDropdown === "procedures"
+      ? null
+      : "procedures"
+  )
+}
   >
     ⚙️ Procedures
 
     <span className="ms-2">
-      {showProcedures ? "▲" : "▼"}
+      {activeDropdown === "procedures" ?"▲" : "▼"}
     </span>
   </button>
 
-  {showProcedures && (
+  {activeDropdown === "procedures" && (
     <div
       style={{
         position: "absolute",
@@ -295,7 +332,7 @@ function App() {
         label="📖 PRO Documents"
         page="role-pros"
         setPage={setPage}
-        setShowDocs={setShowProcedures}
+        closeMenu={() => setActiveDropdown(null)}
         currentPage={page}
       />
 
@@ -303,7 +340,7 @@ function App() {
         label="⚙️ PRO Builder"
         page="pro-builder"
         setPage={setPage}
-        setShowDocs={setShowProcedures}
+        closeMenu={() => setActiveDropdown(null)}
         currentPage={page}
       />
     </div>
@@ -325,19 +362,21 @@ function App() {
       minWidth: "200px",
     }}
     onClick={() =>
-      setShowProcurement(
-        !showProcurement
-      )
-    }
+  setActiveDropdown(
+    activeDropdown === "procurement"
+      ? null
+      : "procurement"
+  )
+}
   >
     🛒 Procurement
 
     <span className="ms-2">
-      {showProcurement ? "▲" : "▼"}
+      {activeDropdown === "procurement" ? "▲" : "▼"}
     </span>
   </button>
 
-  {showProcurement && (
+  {activeDropdown === "procurement" && (
 
     <div
       style={{
@@ -370,7 +409,7 @@ function App() {
         label="🧾 Purchase Orders"
         page="purchase-orders"
         setPage={setPage}
-        setShowDocs={setShowProcurement}
+        closeMenu={() => setActiveDropdown(null)}
         currentPage={page}
       />
 
@@ -391,17 +430,21 @@ function App() {
       minWidth: "200px",
     }}
     onClick={() =>
-      setShowAdmin(!showAdmin)
-    }
+  setActiveDropdown(
+    activeDropdown === "admin"
+      ? null
+      : "admin"
+  )
+}
   >
     🛠 Administration
 
     <span className="ms-2">
-      {showAdmin ? "▲" : "▼"}
+      {activeDropdown === "admin" ? "▲" : "▼"}
     </span>
   </button>
 
-  {showAdmin && (
+  {activeDropdown === "admin" && (
     <div
       style={{
         position: "absolute",
@@ -432,7 +475,7 @@ function App() {
         label="🔎 Audit"
         page="audit"
         setPage={setPage}
-        setShowDocs={setShowAdmin}
+        closeMenu={() => setActiveDropdown(null)}
         currentPage={page}
       />
 
@@ -440,7 +483,7 @@ function App() {
         label="🚀 Improvements"
         page="improvements"
         setPage={setPage}
-        setShowDocs={setShowAdmin}
+        closeMenu={() => setActiveDropdown(null)}
         currentPage={page}
       />
 
@@ -449,7 +492,7 @@ function App() {
           label="👥 Users"
           page="users"
           setPage={setPage}
-          setShowDocs={setShowAdmin}
+          closeMenu={() => setActiveDropdown(null)}
           currentPage={page}
         />
       )}
