@@ -25,7 +25,7 @@ function PurchaseOrderPage({ user }) {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
 
-  // ✅ LOAD
+  // LOAD purchase orders
   useEffect(() => {
     loadPOs();
   }, []);
@@ -34,18 +34,14 @@ function PurchaseOrderPage({ user }) {
     api.get("/po").then((res) => setPos(res.data));
   };
 
-  // ✅ DATE FORMAT (NO TIMEZONE ISSUE)
   const formatDate = (date) => {
     if (!date) return null;
-
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
-
     return `${y}-${m}-${d}`;
   };
 
-  // ✅ SAVE
   const save = () => {
     if (!data.poNumber || !data.date) {
       alert("❌ PO Number and Date required");
@@ -55,7 +51,6 @@ function PurchaseOrderPage({ user }) {
     const payload = {
       ...data,
       date: formatDate(data.date),
-
       createdBy: user.firstName + " " + user.lastName,
     };
 
@@ -65,13 +60,11 @@ function PurchaseOrderPage({ user }) {
 
     call.then(() => {
       alert("✅ Saved");
-
       resetForm();
       loadPOs();
     });
   };
 
-  // ✅ RESET
   const resetForm = () => {
     setData({
       poNumber: "",
@@ -89,14 +82,11 @@ function PurchaseOrderPage({ user }) {
       shipment: "",
       notes: "",
     });
-
     setEditingId(null);
   };
 
-  // ✅ EDIT
   const edit = (p) => {
     setEditingId(p.id);
-
     setData({
       poNumber: p.poNumber || "",
       date: p.date ? new Date(p.date + "T00:00:00") : null,
@@ -113,26 +103,22 @@ function PurchaseOrderPage({ user }) {
       shipment: p.shipment || "",
       notes: p.notes || "",
     });
-
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ✅ PDF
   const downloadPdf = (id) => {
     window.open(`${process.env.REACT_APP_API_URL}/po/${id}/pdf`, "_blank");
   };
 
-  // ✅ FILTER
   const filtered = pos.filter(
     (p) =>
       p.poNumber?.toLowerCase().includes(search.toLowerCase()) ||
       p.product?.toLowerCase().includes(search.toLowerCase()) ||
-      p.producer?.toLowerCase().includes(search.toLowerCase()),
+      p.producer?.toLowerCase().includes(search.toLowerCase())
   );
 
   const action = (id, type) => {
     const username = user.firstName + " " + user.lastName;
-
     api.post(`/po/${id}/action?action=${type}&user=${username}`).then(() => {
       loadPOs();
     });
@@ -140,173 +126,208 @@ function PurchaseOrderPage({ user }) {
 
   return (
     <div className="container mt-4">
-      {/* ===================================== */}
-      {/* ✅ FORM */}
-      {/* ===================================== */}
+      {/* ========================= */}
+      {/* FORM: All Sections + Buttons */}
+      {/* ========================= */}
 
-      <div className="card shadow mb-4">
-        <div className="card-header bg-primary text-white d-flex justify-content-between">
-          <h5 className="mb-0">
-            {editingId ? "Edit Purchase Order" : "Create Purchase Order"}
-          </h5>
-
-          {editingId && (
-            <button className="btn btn-light btn-sm" onClick={resetForm}>
-              Cancel
-            </button>
-          )}
+      {/* ========================= */}
+      {/* Basic Info Section */}
+      {/* ========================= */}
+      <div className="card mb-4">
+        <div className="card-header bg-primary text-white">
+          <h5 className="mb-0">Basic Information</h5>
         </div>
-
         <div className="card-body">
-          <div className="row">
+          <div className="row mb-3">
             <div className="col-md-4">
-              <input
-                className="form-control"
-                placeholder="PO Number (auto)"
-                value={data.poNumber}
-                readOnly
-              />
+              <label>PO Number (auto)</label>
+              <input className="form-control" value={data.poNumber} readOnly />
             </div>
-
             <div className="col-md-4">
+              <label>Date</label>
               <DatePicker
-                className="form-control mb-2"
                 selected={data.date}
                 onChange={(date) => setData({ ...data, date })}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="Fecha"
+                className="form-control"
+                placeholderText="Select Date"
               />
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* ✅ PRODUCT INFO */}
-
-          <div className="row">
+      {/* ========================= */}
+      {/* Product Details Section */}
+      {/* ========================= */}
+      <div className="card mb-4">
+        <div className="card-header bg-info text-white">
+          <h5 className="mb-0">Product Details</h5>
+        </div>
+        <div className="card-body">
+          <div className="row mb-3">
             <div className="col-md-3">
+              <label>Product</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Product"
                 value={data.product}
                 onChange={(e) => setData({ ...data, product: e.target.value })}
               />
             </div>
-
             <div className="col-md-3">
+              <label>Origin</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Origin"
                 value={data.origin}
                 onChange={(e) => setData({ ...data, origin: e.target.value })}
               />
             </div>
-
             <div className="col-md-3">
+              <label>Producer</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Producer"
                 value={data.producer}
                 onChange={(e) => setData({ ...data, producer: e.target.value })}
               />
             </div>
-
             <div className="col-md-3">
+              <label>Grade</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Grade"
                 value={data.grade}
                 onChange={(e) => setData({ ...data, grade: e.target.value })}
               />
             </div>
           </div>
-
-          <div className="row">
+          <div className="row mb-3">
             <div className="col-md-3">
+              <label>Quantity (kg)</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Quantity"
                 value={data.quantity}
                 onChange={(e) => setData({ ...data, quantity: e.target.value })}
               />
             </div>
-
             <div className="col-md-3">
+              <label>Price (USD/mt)</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Price"
                 value={data.price}
                 onChange={(e) => setData({ ...data, price: e.target.value })}
               />
             </div>
-
             <div className="col-md-6">
+              <label>Packaging</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Packaging"
                 value={data.packaging}
-                onChange={(e) =>
-                  setData({ ...data, packaging: e.target.value })
-                }
+                onChange={(e) => setData({ ...data, packaging: e.target.value })}
               />
             </div>
           </div>
+        </div>
+      </div>
 
-          <textarea
-            className="form-control mb-2"
-            placeholder="Logistics"
-            value={data.logistics}
-            onChange={(e) => setData({ ...data, logistics: e.target.value })}
-          />
-
-          <div className="row">
-            <div className="col-md-3">
+      {/* ========================= */}
+      {/* Logistics & Terms Section */}
+      {/* ========================= */}
+      <div className="card mb-4">
+        <div className="card-header bg-warning text-dark">
+          <h5 className="mb-0">Logistics & Terms</h5>
+        </div>
+        <div className="card-body">
+          <div className="mb-3">
+            <label>Logistics</label>
+            <textarea
+              className="form-control"
+              rows={3}
+              placeholder="Logistics details"
+              value={data.logistics}
+              onChange={(e) => setData({ ...data, logistics: e.target.value })}
+            />
+          </div>
+          <div className="row mb-3">
+            <div className="col-md-4">
+              <label>Incoterm</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Incoterm"
                 value={data.incoterm}
                 onChange={(e) => setData({ ...data, incoterm: e.target.value })}
               />
             </div>
-
-            <div className="col-md-3">
+            <div className="col-md-4">
+              <label>Credit</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Credit"
                 value={data.credit}
                 onChange={(e) => setData({ ...data, credit: e.target.value })}
               />
             </div>
-
-            <div className="col-md-6">
+            <div className="col-md-4">
+              <label>Shipment</label>
               <input
-                className="form-control mb-2"
+                className="form-control"
                 placeholder="Shipment"
                 value={data.shipment}
                 onChange={(e) => setData({ ...data, shipment: e.target.value })}
               />
             </div>
           </div>
-
-          <textarea
-            className="form-control mb-3"
-            placeholder="Notes"
-            value={data.notes}
-            onChange={(e) => setData({ ...data, notes: e.target.value })}
-          />
-
-          <button className="btn btn-success" onClick={save}>
-            {editingId ? "Update PO" : "Create PO"}
-          </button>
         </div>
       </div>
 
-      {/* ===================================== */}
-      {/* ✅ LIST */}
-      {/* ===================================== */}
+      {/* ========================= */}
+      {/* Notes Section */}
+      {/* ========================= */}
+      <div className="card mb-4">
+        <div className="card-header bg-light">
+          <h5 className="mb-0">Additional Notes</h5>
+        </div>
+        <div className="card-body">
+          <div className="mb-3">
+            <label>Notes</label>
+            <textarea
+              className="form-control"
+              rows={4}
+              placeholder="Additional notes..."
+              value={data.notes}
+              onChange={(e) => setData({ ...data, notes: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
 
-      <div className="card shadow">
+      {/* ========================= */}
+      {/* Buttons */}
+      {/* ========================= */}
+      <div className="mt-3 d-flex gap-2 flex-wrap">
+        <button className="btn btn-success" onClick={save}>
+          {editingId ? "Update PO" : "Create PO"}
+        </button>
+        {editingId && (
+          <button className="btn btn-secondary" onClick={resetForm}>
+            Cancel
+          </button>
+        )}
+        {/* Optional Preview Button */}
+        {/* <button className="btn btn-outline-primary" onClick={handlePreview}>Preview</button> */}
+      </div>
+
+      {/* ========================= */}
+      {/* List Existing POs */}
+      {/* ========================= */}
+      <div className="card shadow mt-4">
         <div className="card-header bg-dark text-white d-flex justify-content-between">
           <h5 className="mb-0">Purchase Orders</h5>
-
           <input
             className="form-control w-25"
             placeholder="Search..."
@@ -314,12 +335,11 @@ function PurchaseOrderPage({ user }) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-
         <div className="card-body">
           {filtered.map((p) => (
             <div key={p.id} className="border rounded p-3 mb-3">
-              {/* ✅ HEADER */}
-              <div className="d-flex justify-content-between align-items-center">
+              {/* Header */}
+              <div className="d-flex justify-content-between align-items-center mb-2">
                 <div>
                   <b>{p.poNumber}</b> - {p.product}
                   <br />
@@ -327,62 +347,54 @@ function PurchaseOrderPage({ user }) {
                     {p.producer} | {p.origin}
                   </small>
                 </div>
-
-                {/* ✅ STATUS BADGE */}
+                {/* Status Badge */}
                 <span
                   className={`badge ${
                     p.status === "APPROVED"
                       ? "bg-success"
                       : p.status === "SENT"
-                        ? "bg-primary"
-                        : p.status === "CLOSED"
-                          ? "bg-dark"
-                          : "bg-secondary"
+                      ? "bg-primary"
+                      : p.status === "CLOSED"
+                      ? "bg-dark"
+                      : "bg-secondary"
                   }`}
                 >
                   {p.status}
                 </span>
               </div>
-
-              {/* ✅ ✅ ACTIONS (THIS WAS MISSING) */}
-              <div className="mt-3 d-flex gap-2 flex-wrap">
+              {/* Actions */}
+              <div className="d-flex gap-2 flex-wrap">
                 <button
-                  className="btn btn-sm btn-outline-primary me-2"
+                  className="btn btn-sm btn-outline-primary"
                   onClick={() => edit(p)}
                 >
                   Edit
                 </button>
-
-                {/* ✅ WORKFLOW BUTTONS */}
-
                 {p.status === "DRAFT" && (
                   <button
-                    className="btn btn-sm btn-primary me-2"
+                    className="btn btn-sm btn-primary"
                     onClick={() => action(p.id, "SEND")}
                   >
                     Send
                   </button>
                 )}
-
                 {p.status === "SENT" && (
                   <button
-                    className="btn btn-sm btn-success me-2"
+                    className="btn btn-sm btn-success"
                     onClick={() => action(p.id, "APPROVE")}
                   >
                     Approve
                   </button>
                 )}
-
                 {p.status === "APPROVED" && (
                   <button
-                    className="btn btn-sm btn-dark me-2"
+                    className="btn btn-sm btn-dark"
                     onClick={() => action(p.id, "CLOSE")}
                   >
                     Close
                   </button>
                 )}
-
-                {/* ✅ PDF */}
+                {/* PDF */}
                 <button
                   className="btn btn-sm btn-outline-success"
                   onClick={() => downloadPdf(p.id)}
