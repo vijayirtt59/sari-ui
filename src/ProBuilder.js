@@ -814,18 +814,56 @@ const [changeDescription, setChangeDescription] =
 
 <Editor apiKey='0rofizmtdt5urrczcvs5wlzkkd3h8eckur9oojmzpio0g8wr'
   value={data.procedimiento}
-  onEditorChange={(content) =>
+  onEditorChange={(content) => {
+    console.log("Editor content changed:", content);
     setData({
-      ...data,
-      procedimiento: content,
+          ...data,
+          procedimiento: content,
     })
   }
+  }
   init={{
+    paste_preprocess: (plugin, args) => {
+
+  const div = document.createElement("div");
+
+  div.innerHTML = args.content;
+
+  
+
+  div.querySelectorAll("*").forEach((el) => {
+
+    el.removeAttribute("class");
+
+    const style = el.getAttribute("style");
+
+    if (!style) return;
+
+    const cleaned = style
+
+      .replace(/margin[^;]*;?/gi, "")
+      .replace(/text-indent[^;]*;?/gi, "")
+      .replace(/padding-left[^;]*;?/gi, "")
+      .replace(/mso-[^:]+:[^;]+;?/gi, "");
+
+    if (cleaned.trim()) {
+      el.setAttribute("style", cleaned);
+    } else {
+      el.removeAttribute("style");
+    }
+  });
+
+  args.content = div.innerHTML;
+},
+paste_as_text: false,
+paste_remove_styles_if_webkit: true,
+paste_webkit_styles: "none",
     height: 600,
 
     menubar: true,
 
     plugins: [
+      "paste",
       "lists",
       "table",
       "link",
