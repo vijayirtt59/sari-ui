@@ -812,58 +812,77 @@ const [changeDescription, setChangeDescription] =
 
               <h6 className="mt-4">PROCEDIMIENTO</h6>
 
-<Editor apiKey='0rofizmtdt5urrczcvs5wlzkkd3h8eckur9oojmzpio0g8wr'
+<Editor
+  apiKey="0rofizmtdt5urrczcvs5wlzkkd3h8eckur9oojmzpio0g8wr"
   value={data.procedimiento}
   onEditorChange={(content) => {
     console.log("Editor content changed:", content);
+
     setData({
-          ...data,
-          procedimiento: content,
-    })
-  }
-  }
+      ...data,
+      procedimiento: content,
+    });
+  }}
   init={{
-    paste_preprocess: (plugin, args) => {
-
-  const div = document.createElement("div");
-
-  div.innerHTML = args.content;
-
-  
-
-  div.querySelectorAll("*").forEach((el) => {
-
-    el.removeAttribute("class");
-
-    const style = el.getAttribute("style");
-
-    if (!style) return;
-
-    const cleaned = style
-
-      .replace(/margin[^;]*;?/gi, "")
-      .replace(/text-indent[^;]*;?/gi, "")
-      .replace(/padding-left[^;]*;?/gi, "")
-      .replace(/mso-[^:]+:[^;]+;?/gi, "");
-
-    if (cleaned.trim()) {
-      el.setAttribute("style", cleaned);
-    } else {
-      el.removeAttribute("style");
-    }
-  });
-
-  args.content = div.innerHTML;
-},
-paste_as_text: false,
-paste_remove_styles_if_webkit: true,
-paste_webkit_styles: "none",
     height: 600,
 
     menubar: true,
 
+    paste_preprocess: (plugin, args) => {
+
+      const div = document.createElement("div");
+
+      div.innerHTML = args.content;
+
+      // Remove empty paragraphs
+      div.querySelectorAll("p").forEach((p) => {
+
+        const text = p.textContent
+          ?.replace(/\u00A0/g, "")
+          .trim();
+
+        if (!text) {
+          p.remove();
+        }
+      });
+
+      // Clean Word styles
+      div.querySelectorAll("*").forEach((el) => {
+
+        el.removeAttribute("class");
+
+        const style = el.getAttribute("style");
+
+        if (!style) return;
+
+        const cleaned = style
+
+          .replace(/margin[^;]*;?/gi, "")
+          .replace(/text-indent[^;]*;?/gi, "")
+          .replace(/padding-left[^;]*;?/gi, "")
+          .replace(/tab-stops[^;]*;?/gi, "")
+          .replace(/mso-[^:]+:[^;]+;?/gi, "")
+          .replace(/border-image[^;]*;?/gi, "");
+
+        if (cleaned.trim()) {
+          el.setAttribute("style", cleaned);
+        } else {
+          el.removeAttribute("style");
+        }
+      });
+
+      args.content = div.innerHTML;
+    },
+
+    paste_as_text: false,
+
+    paste_remove_styles_if_webkit: true,
+
+    paste_webkit_styles: "none",
+
     plugins: [
       "paste",
+      "advlist",
       "lists",
       "table",
       "link",
@@ -877,10 +896,21 @@ paste_webkit_styles: "none",
       "undo redo | " +
       "styles | " +
       "bold italic underline | " +
+      "alignleft aligncenter alignright alignjustify | " +
       "bullist numlist | " +
+      "outdent indent | " +
       "table | " +
       "link | " +
+      "removeformat | " +
       "code fullscreen",
+
+    advlist_bullet_styles:
+      "default,circle,square",
+
+    advlist_number_styles:
+      "default,lower-alpha,upper-alpha,lower-roman,upper-roman",
+
+    lists_indent_on_tab: true,
 
     table_default_attributes: {
       border: "1",
@@ -888,8 +918,55 @@ paste_webkit_styles: "none",
 
     content_style: `
       body {
-        font-family:Arial,sans-serif;
-        font-size:14px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      p {
+        margin: 4px 0;
+      }
+
+      ul {
+        list-style-type: disc;
+        margin: 4px 0;
+        padding-left: 25px;
+      }
+
+      ul ul {
+        list-style-type: circle;
+      }
+
+      ul ul ul {
+        list-style-type: square;
+      }
+
+      ol {
+        list-style-type: decimal;
+        margin: 4px 0;
+        padding-left: 25px;
+      }
+
+      ol ol {
+        list-style-type: lower-alpha;
+      }
+
+      ol ol ol {
+        list-style-type: lower-roman;
+      }
+
+      li {
+        margin: 2px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      td,
+      th {
+        padding: 4px;
       }
     `,
   }}
