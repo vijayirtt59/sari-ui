@@ -121,6 +121,12 @@ function UserManagement() {
                       <option value="COORDINADOR_SISTEMA_SARI">
                         Coordinador Sistema SARI
                       </option>
+                      <option value="RESPONSIBLE_DE_SISTEMAS">
+                        Responsable de Sistemas
+                      </option>
+                      <option value="REPRESENTANTE_LEGAL">
+                        Representante legal (responsable de Seguridad e higiene)
+                      </option>
 
                       <option value="DIRECCION_GENERAL">
                         Dirección General

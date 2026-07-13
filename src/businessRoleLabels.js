@@ -6,4 +6,7 @@ export const businessRoleLabels = {
   AGENTES_VENTAS: "Agentes de Ventas",
 
   COORDINADOR_SISTEMA_SARI: "Coordinador de Sistema SARI",
+  RESPONSIBLE_DE_SISTEMAS: "Responsable de Sistemas",
+  REPRESENTANTE_LEGAL:
+    "Representante legal (responsable de Seguridad e higiene)",
 };

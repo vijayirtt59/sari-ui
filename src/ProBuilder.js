@@ -985,6 +985,13 @@ function ProBuilder({ user }) {
                                 <option value="COORDINADOR_SISTEMA_SARI">
                                   Coordinador de Sistema SARI
                                 </option>
+                                <option value="RESPONSIBLE_DE_SISTEMAS">
+                                  Responsable de Sistemas
+                                </option>
+                                <option value="REPRESENTANTE_LEGAL">
+                                  Representante legal (responsable de Seguridad
+                                  e higiene)
+                                </option>
                               </select>
                             </td>
 
