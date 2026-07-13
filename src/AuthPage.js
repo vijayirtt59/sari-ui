@@ -9,7 +9,7 @@ function AuthPage({ onLogin }) {
     lastName: "",
     email: "",
     password: "",
-    professionalTitle: ""
+    professionalTitle: "",
   });
 
   const submit = () => {
@@ -68,20 +68,19 @@ function AuthPage({ onLogin }) {
             />
 
             <input
-  className="form-control mb-2"
-  placeholder="Professional Title (Optional)"
-  onChange={(e) =>
-    setData({
-      ...data,
-      professionalTitle: e.target.value,
-    })
-  }
-/>
+              className="form-control mb-2"
+              placeholder="Professional Title (Optional)"
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  professionalTitle: e.target.value,
+                })
+              }
+            />
 
-<small className="text-muted d-block mb-2">
-  Examples: Lic., Ing., Dr., Mtra., QFB
-</small>
-
+            <small className="text-muted d-block mb-2">
+              Examples: Lic., Ing., Dr., Mtra., QFB
+            </small>
           </>
         )}
 

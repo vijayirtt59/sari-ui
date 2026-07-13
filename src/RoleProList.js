@@ -7,31 +7,27 @@ function RoleProList({ user }) {
   const [myPros, setMyPros] = useState([]);
 
   useEffect(() => {
+    api
+      .get("/pro")
+      .then((res) => {
+        setPros(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setPros([]);
+      });
 
-  api.get("/pro")
-    .then((res) => {
-      setPros(res.data);
-    })
-    .catch((err) => {
-      console.error(err);
-      setPros([]);
-    });
+    api
+      .get(`/pro/by-role/${user.businessRole}`)
+      .then((res) => {
+        setMyPros(res.data);
+      })
+      .catch((err) => {
+        console.warn("Unable to load role-specific PROs", err);
 
-  api
-    .get(`/pro/by-role/${user.businessRole}`)
-    .then((res) => {
-      setMyPros(res.data);
-    })
-    .catch((err) => {
-      console.warn(
-        "Unable to load role-specific PROs",
-        err
-      );
-
-      setMyPros([]);
-    });
-
-}, [user.businessRole]);
+        setMyPros([]);
+      });
+  }, [user.businessRole]);
 
   const allPros = pros;
 
@@ -75,28 +71,19 @@ function RoleProList({ user }) {
               "
               >
                 <div>
-  <b>{p.code}</b> {p.title}
-
-  <div className="mt-1">
-
-
-  {p.registros
-    ?.filter(
-      (r) =>
-        r.responsableResguardo ===
-        user.businessRole
-    )
-    .map((r, index) => (
-      <span
-        key={index}
-        className="badge bg-secondary me-1"
-      >
-        {r.nombre}
-      </span>
-    ))}
-
-</div>
-</div>
+                  <b>{p.code}</b> {p.title}
+                  <div className="mt-1">
+                    {p.registros
+                      ?.filter(
+                        (r) => r.responsableResguardo === user.businessRole,
+                      )
+                      .map((r, index) => (
+                        <span key={index} className="badge bg-secondary me-1">
+                          {r.nombre}
+                        </span>
+                      ))}
+                  </div>
+                </div>
 
                 <span
                   className={`badge ${

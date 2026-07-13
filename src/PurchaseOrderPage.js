@@ -114,7 +114,7 @@ function PurchaseOrderPage({ user }) {
     (p) =>
       p.poNumber?.toLowerCase().includes(search.toLowerCase()) ||
       p.product?.toLowerCase().includes(search.toLowerCase()) ||
-      p.producer?.toLowerCase().includes(search.toLowerCase())
+      p.producer?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const action = (id, type) => {
@@ -228,7 +228,9 @@ function PurchaseOrderPage({ user }) {
                 className="form-control"
                 placeholder="Packaging"
                 value={data.packaging}
-                onChange={(e) => setData({ ...data, packaging: e.target.value })}
+                onChange={(e) =>
+                  setData({ ...data, packaging: e.target.value })
+                }
               />
             </div>
           </div>
@@ -353,10 +355,10 @@ function PurchaseOrderPage({ user }) {
                     p.status === "APPROVED"
                       ? "bg-success"
                       : p.status === "SENT"
-                      ? "bg-primary"
-                      : p.status === "CLOSED"
-                      ? "bg-dark"
-                      : "bg-secondary"
+                        ? "bg-primary"
+                        : p.status === "CLOSED"
+                          ? "bg-dark"
+                          : "bg-secondary"
                   }`}
                 >
                   {p.status}

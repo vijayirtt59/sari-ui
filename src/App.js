@@ -19,9 +19,7 @@ function App() {
   // ✅ FULL USER OBJECT
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
-  const [page, setPage] = useState(
-  user ? "dashboard" : "home"
-);
+  const [page, setPage] = useState(user ? "dashboard" : "home");
 
   const [docs, setDocs] = useState([]);
 
@@ -64,12 +62,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-
-  if (user && page === "home") {
-    setPage("dashboard");
-  }
-
-}, [user, page]);
+    if (user && page === "home") {
+      setPage("dashboard");
+    }
+  }, [user, page]);
 
   // =========================================
   // ✅ CLOSE DROPDOWN
@@ -88,40 +84,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-  window.history.pushState(
-    null,
-    "",
-    window.location.href
-  );
+    window.history.pushState(null, "", window.location.href);
 
-  const handlePopState = () => {
-
-    const leave = window.confirm(
-      "You have unsaved changes. Are you sure you want to leave?"
-    );
-
-    if (leave) {
-      window.history.back();
-    } else {
-      window.history.pushState(
-        null,
-        "",
-        window.location.href
+    const handlePopState = () => {
+      const leave = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?",
       );
-    }
-  };
 
-  window.addEventListener(
-    "popstate",
-    handlePopState
-  );
+      if (leave) {
+        window.history.back();
+      } else {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
 
-  return () =>
-    window.removeEventListener(
-      "popstate",
-      handlePopState
-    );
-}, []);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // =========================================
   // ✅ DROPDOWN ITEM
@@ -213,15 +193,15 @@ function App() {
                       minWidth: "220px",
                     }}
                     onClick={() =>
-  setActiveDropdown(
-    activeDropdown === "documents"
-      ? null
-      : "documents"
-  )
-}
+                      setActiveDropdown(
+                        activeDropdown === "documents" ? null : "documents",
+                      )
+                    }
                   >
                     📂 Documents
-                    <span className="ms-2">{activeDropdown === "documents" ? "▲" : "▼"}</span>
+                    <span className="ms-2">
+                      {activeDropdown === "documents" ? "▲" : "▼"}
+                    </span>
                   </button>
 
                   {activeDropdown === "documents" && (
@@ -253,7 +233,7 @@ function App() {
                         label="🛡 Policies & Governance"
                         page="create-docs"
                         setPage={setPage}
-                          closeMenu={() => setActiveDropdown(null)}
+                        closeMenu={() => setActiveDropdown(null)}
                         currentPage={page}
                       />
 
@@ -276,232 +256,205 @@ function App() {
                   )}
                 </div>
 
+                <div className="position-relative me-2 dropdown-wrapper">
+                  <button
+                    className="btn btn-secondary shadow-sm"
+                    style={{
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      minWidth: "200px",
+                    }}
+                    onClick={() =>
+                      setActiveDropdown(
+                        activeDropdown === "procedures" ? null : "procedures",
+                      )
+                    }
+                  >
+                    ⚙️ Procedures
+                    <span className="ms-2">
+                      {activeDropdown === "procedures" ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {activeDropdown === "procedures" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "52px",
+                        left: 0,
+                        width: "320px",
+                        background: "#fff",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        boxShadow: "0 15px 40px rgba(0,0,0,.2)",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "linear-gradient(90deg,#6c757d,#495057)",
+                          color: "white",
+                          padding: "12px 16px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        ⚙️ Procedures
+                      </div>
+
+                      <DropdownItem
+                        label="📖 PRO Documents"
+                        page="role-pros"
+                        setPage={setPage}
+                        closeMenu={() => setActiveDropdown(null)}
+                        currentPage={page}
+                      />
+
+                      <DropdownItem
+                        label="⚙️ PRO Builder"
+                        page="pro-builder"
+                        setPage={setPage}
+                        closeMenu={() => setActiveDropdown(null)}
+                        currentPage={page}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div
-  className="position-relative me-2 dropdown-wrapper"
->
-  <button
-    className="btn btn-secondary shadow-sm"
-    style={{
-      borderRadius: "12px",
-      fontWeight: "600",
-      minWidth: "200px",
-    }}
-    onClick={() =>
-  setActiveDropdown(
-    activeDropdown === "procedures"
-      ? null
-      : "procedures"
-  )
-}
-  >
-    ⚙️ Procedures
-
-    <span className="ms-2">
-      {activeDropdown === "procedures" ?"▲" : "▼"}
-    </span>
-  </button>
-
-  {activeDropdown === "procedures" && (
-    <div
-      style={{
-        position: "absolute",
-        top: "52px",
-        left: 0,
-        width: "320px",
-        background: "#fff",
-        borderRadius: "12px",
-        overflow: "hidden",
-        boxShadow:
-          "0 15px 40px rgba(0,0,0,.2)",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          background:
-            "linear-gradient(90deg,#6c757d,#495057)",
-          color: "white",
-          padding: "12px 16px",
-          fontWeight: "600",
-        }}
-      >
-        ⚙️ Procedures
-      </div>
-
-      <DropdownItem
-        label="📖 PRO Documents"
-        page="role-pros"
-        setPage={setPage}
-        closeMenu={() => setActiveDropdown(null)}
-        currentPage={page}
-      />
-
-      <DropdownItem
-        label="⚙️ PRO Builder"
-        page="pro-builder"
-        setPage={setPage}
-        closeMenu={() => setActiveDropdown(null)}
-        currentPage={page}
-      />
-    </div>
-  )}
-</div>
-
-<div
-  className="
+                  className="
     position-relative
     me-2
     dropdown-wrapper
   "
->
-  <button
-    className="btn btn-success shadow-sm"
-    style={{
-      borderRadius: "12px",
-      fontWeight: "600",
-      minWidth: "200px",
-    }}
-    onClick={() =>
-  setActiveDropdown(
-    activeDropdown === "procurement"
-      ? null
-      : "procurement"
-  )
-}
-  >
-    🛒 Procurement
+                >
+                  <button
+                    className="btn btn-success shadow-sm"
+                    style={{
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      minWidth: "200px",
+                    }}
+                    onClick={() =>
+                      setActiveDropdown(
+                        activeDropdown === "procurement" ? null : "procurement",
+                      )
+                    }
+                  >
+                    🛒 Procurement
+                    <span className="ms-2">
+                      {activeDropdown === "procurement" ? "▲" : "▼"}
+                    </span>
+                  </button>
 
-    <span className="ms-2">
-      {activeDropdown === "procurement" ? "▲" : "▼"}
-    </span>
-  </button>
+                  {activeDropdown === "procurement" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "52px",
+                        left: 0,
+                        width: "320px",
+                        background: "#fff",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        boxShadow: "0 15px 40px rgba(0,0,0,.2)",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "linear-gradient(90deg,#198754,#157347)",
+                          color: "white",
+                          padding: "12px 16px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        🛒 Procurement
+                      </div>
 
-  {activeDropdown === "procurement" && (
+                      <DropdownItem
+                        label="🧾 Purchase Orders"
+                        page="purchase-orders"
+                        setPage={setPage}
+                        closeMenu={() => setActiveDropdown(null)}
+                        currentPage={page}
+                      />
+                    </div>
+                  )}
+                </div>
 
-    <div
-      style={{
-        position: "absolute",
-        top: "52px",
-        left: 0,
-        width: "320px",
-        background: "#fff",
-        borderRadius: "12px",
-        overflow: "hidden",
-        boxShadow:
-          "0 15px 40px rgba(0,0,0,.2)",
-        zIndex: 1000,
-      }}
-    >
+                <div className="position-relative me-2 dropdown-wrapper">
+                  <button
+                    className="btn btn-warning shadow-sm"
+                    style={{
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      minWidth: "200px",
+                    }}
+                    onClick={() =>
+                      setActiveDropdown(
+                        activeDropdown === "admin" ? null : "admin",
+                      )
+                    }
+                  >
+                    🛠 Administration
+                    <span className="ms-2">
+                      {activeDropdown === "admin" ? "▲" : "▼"}
+                    </span>
+                  </button>
 
-      <div
-        style={{
-          background:
-            "linear-gradient(90deg,#198754,#157347)",
-          color: "white",
-          padding: "12px 16px",
-          fontWeight: "600",
-        }}
-      >
-        🛒 Procurement
-      </div>
+                  {activeDropdown === "admin" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "52px",
+                        left: 0,
+                        width: "320px",
+                        background: "#fff",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        boxShadow: "0 15px 40px rgba(0,0,0,.2)",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "linear-gradient(90deg,#ffc107,#ffca2c)",
+                          color: "#212529",
+                          padding: "12px 16px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        🛠 Administration
+                      </div>
 
-      <DropdownItem
-        label="🧾 Purchase Orders"
-        page="purchase-orders"
-        setPage={setPage}
-        closeMenu={() => setActiveDropdown(null)}
-        currentPage={page}
-      />
+                      <DropdownItem
+                        label="🔎 Audit"
+                        page="audit"
+                        setPage={setPage}
+                        closeMenu={() => setActiveDropdown(null)}
+                        currentPage={page}
+                      />
 
-    </div>
+                      <DropdownItem
+                        label="🚀 Improvements"
+                        page="improvements"
+                        setPage={setPage}
+                        closeMenu={() => setActiveDropdown(null)}
+                        currentPage={page}
+                      />
 
-  )}
-
-</div>
-
-<div
-  className="position-relative me-2 dropdown-wrapper"
->
-  <button
-    className="btn btn-warning shadow-sm"
-    style={{
-      borderRadius: "12px",
-      fontWeight: "600",
-      minWidth: "200px",
-    }}
-    onClick={() =>
-  setActiveDropdown(
-    activeDropdown === "admin"
-      ? null
-      : "admin"
-  )
-}
-  >
-    🛠 Administration
-
-    <span className="ms-2">
-      {activeDropdown === "admin" ? "▲" : "▼"}
-    </span>
-  </button>
-
-  {activeDropdown === "admin" && (
-    <div
-      style={{
-        position: "absolute",
-        top: "52px",
-        left: 0,
-        width: "320px",
-        background: "#fff",
-        borderRadius: "12px",
-        overflow: "hidden",
-        boxShadow:
-          "0 15px 40px rgba(0,0,0,.2)",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          background:
-            "linear-gradient(90deg,#ffc107,#ffca2c)",
-          color: "#212529",
-          padding: "12px 16px",
-          fontWeight: "600",
-        }}
-      >
-        🛠 Administration
-      </div>
-
-      <DropdownItem
-        label="🔎 Audit"
-        page="audit"
-        setPage={setPage}
-        closeMenu={() => setActiveDropdown(null)}
-        currentPage={page}
-      />
-
-      <DropdownItem
-        label="🚀 Improvements"
-        page="improvements"
-        setPage={setPage}
-        closeMenu={() => setActiveDropdown(null)}
-        currentPage={page}
-      />
-
-      {role === "ADMIN" && (
-        <DropdownItem
-          label="👥 Users"
-          page="users"
-          setPage={setPage}
-          closeMenu={() => setActiveDropdown(null)}
-          currentPage={page}
-        />
-      )}
-    </div>
-  )}
-</div>
-
-
-                
+                      {role === "ADMIN" && (
+                        <DropdownItem
+                          label="👥 Users"
+                          page="users"
+                          setPage={setPage}
+                          closeMenu={() => setActiveDropdown(null)}
+                          currentPage={page}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -591,7 +544,12 @@ function App() {
             {/* ✅ CREATE DOC */}
 
             {page === "create-docs" && (
-              <CreateDocument user={user} role={role} docs={docs} onCreated={loadDocs} />
+              <CreateDocument
+                user={user}
+                role={role}
+                docs={docs}
+                onCreated={loadDocs}
+              />
             )}
 
             {/* ✅ ADMIN ONLY */}

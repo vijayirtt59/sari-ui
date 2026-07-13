@@ -14,17 +14,9 @@ function UserManagement() {
     load();
   }, []);
 
-  const updateRoles = (
-  id,
-  roles
-) => {
-
-  api.put(
-    `/users/${id}/roles`,
-    roles
-  ).then(load);
-
-};
+  const updateRoles = (id, roles) => {
+    api.put(`/users/${id}/roles`, roles).then(load);
+  };
 
   const updateBusinessRole = (id, businessRole) => {
     api
@@ -35,7 +27,6 @@ function UserManagement() {
   const updateEnabled = (id, enabled) => {
     api.put(`/users/${id}/enabled?enabled=${enabled}`).then(load);
   };
-
 
   return (
     <div className="container">
@@ -62,169 +53,105 @@ function UserManagement() {
               {users.map((u) => (
                 <tr key={u.id}>
                   <td>
-
-  {u.professionalTitle
-    ? `${u.professionalTitle} ${u.firstName} ${u.lastName}`
-    : `${u.firstName} ${u.lastName}`
-  }
-
-</td>
+                    {u.professionalTitle
+                      ? `${u.professionalTitle} ${u.firstName} ${u.lastName}`
+                      : `${u.firstName} ${u.lastName}`}
+                  </td>
                   <td>{u.email}</td>
 
                   {/* ROLE */}
 
                   <td>
+                    <div className="mb-2">
+                      {u.systemRoles?.map((role) => (
+                        <span key={role} className="badge bg-primary me-1">
+                          {role}
+                        </span>
+                      ))}
+                    </div>
 
-  <div className="mb-2">
+                    {[
+                      "VIEWER",
+                      "PREPARER",
+                      "REVIEWER",
+                      "APPROVER",
+                      "ADMIN",
+                    ].map((role) => (
+                      <div key={role} className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={u.systemRoles?.includes(role)}
+                          onChange={(e) => {
+                            let roles = u.systemRoles || [];
 
-    {u.systemRoles?.map(role => (
+                            if (e.target.checked) {
+                              roles = [...roles, role];
+                            } else {
+                              roles = roles.filter((r) => r !== role);
+                            }
 
-      <span
-        key={role}
-        className="badge bg-primary me-1"
-      >
-        {role}
-      </span>
+                            updateRoles(u.id, roles);
+                          }}
+                        />
 
-    ))}
-
-  </div>
-
-  {[
-    "VIEWER",
-    "PREPARER",
-    "REVIEWER",
-    "APPROVER",
-    "ADMIN"
-  ].map(role => (
-
-    <div
-      key={role}
-      className="form-check"
-    >
-
-      <input
-        className="form-check-input"
-        type="checkbox"
-        checked={
-          u.systemRoles?.includes(role)
-        }
-        onChange={(e) => {
-
-          let roles =
-            u.systemRoles || [];
-
-          if (e.target.checked) {
-
-            roles = [
-              ...roles,
-              role
-            ];
-
-          } else {
-
-            roles = roles.filter(
-              r => r !== role
-            );
-
-          }
-
-          updateRoles(
-            u.id,
-            roles
-          );
-
-        }}
-      />
-
-      <label
-        className="form-check-label"
-      >
-        {role}
-      </label>
-
-    </div>
-
-  ))}
-
-</td>
+                        <label className="form-check-label">{role}</label>
+                      </div>
+                    ))}
+                  </td>
 
                   {/* BUSINESS ROLE */}
 
                   <td>
                     <select
-  className="form-select"
-  value={u.businessRole || ""}
-  onChange={(e) =>
-    updateBusinessRole(
-      u.id,
-      e.target.value
-    )
-  }
->
-  <option value="COORDINADOR_SARI">
-    Coordinador del SARI
-  </option>
+                      className="form-select"
+                      value={u.businessRole || ""}
+                      onChange={(e) => updateBusinessRole(u.id, e.target.value)}
+                    >
+                      <option value="COORDINADOR_SARI">
+                        Coordinador del SARI
+                      </option>
 
-  <option value="RESPONSABLE_VENTAS_COMPRAS">
-    Responsable Ventas y Compras
-  </option>
+                      <option value="RESPONSABLE_VENTAS_COMPRAS">
+                        Responsable Ventas y Compras
+                      </option>
 
-  <option value="AGENTES_VENTAS">
-    Agentes de Ventas
-  </option>
+                      <option value="AGENTES_VENTAS">Agentes de Ventas</option>
 
-  <option value="COORDINADOR_SISTEMA_SARI">
-    Coordinador Sistema SARI
-  </option>
+                      <option value="COORDINADOR_SISTEMA_SARI">
+                        Coordinador Sistema SARI
+                      </option>
 
-  <option value="DIRECCION_GENERAL">
-    Dirección General
-  </option>
+                      <option value="DIRECCION_GENERAL">
+                        Dirección General
+                      </option>
 
-  <option value="LOGISTICA">
-    Logística
-  </option>
+                      <option value="LOGISTICA">Logística</option>
 
-  <option value="PRODUCCION">
-    Producción
-  </option>
-</select>
+                      <option value="PRODUCCION">Producción</option>
+                    </select>
                   </td>
 
                   {/* ENABLED */}
 
                   <td>
+                    <span
+                      className={`badge me-2 ${
+                        u.enabled ? "bg-success" : "bg-danger"
+                      }`}
+                    >
+                      {u.enabled ? "ACTIVE" : "DISABLED"}
+                    </span>
 
-  <span
-    className={`badge me-2 ${
-      u.enabled
-        ? "bg-success"
-        : "bg-danger"
-    }`}
-  >
-    {u.enabled
-      ? "ACTIVE"
-      : "DISABLED"}
-  </span>
-
-  <div className="form-check form-switch">
-
-    <input
-      className="form-check-input"
-      type="checkbox"
-      checked={u.enabled}
-      onChange={(e) =>
-        updateEnabled(
-          u.id,
-          e.target.checked
-        )
-      }
-    />
-
-  </div>
-
-</td>
+                    <div className="form-check form-switch">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={u.enabled}
+                        onChange={(e) => updateEnabled(u.id, e.target.checked)}
+                      />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

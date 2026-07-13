@@ -15,7 +15,6 @@ function ProBuilder({ user }) {
     alcance: "",
     procedimiento: "",
   });
-  
 
   const canPreview =
     data.code?.trim() &&
@@ -34,22 +33,21 @@ function ProBuilder({ user }) {
   const [editingCode, setEditingCode] = useState(null);
 
   const [preparedBy, setPreparedBy] = useState("");
-const [reviewedBy, setReviewedBy] = useState("");
-const [approvedBy, setApprovedBy] = useState("");
+  const [reviewedBy, setReviewedBy] = useState("");
+  const [approvedBy, setApprovedBy] = useState("");
 
-const [preparedDate, setPreparedDate] = useState("");
-const [reviewedDate, setReviewedDate] = useState("");
-const [approvedDate, setApprovedDate] = useState("");
-const [legacyDocument, setLegacyDocument] =
-  useState(false);
+  const [preparedDate, setPreparedDate] = useState("");
+  const [reviewedDate, setReviewedDate] = useState("");
+  const [approvedDate, setApprovedDate] = useState("");
+  const [legacyDocument, setLegacyDocument] = useState(false);
 
-const [changes, setChanges] = useState([
-  {
-    version: 0,
-    description: "Emisión inicial",
-    changeDate: null,
-  },
-]);
+  const [changes, setChanges] = useState([
+    {
+      version: 0,
+      description: "Emisión inicial",
+      changeDate: null,
+    },
+  ]);
 
   const [forms, setForms] = useState([]);
 
@@ -80,16 +78,17 @@ const [changes, setChanges] = useState([
   }, []);
 
   const loadPros = () => {
-  api.get("/pro")
-    .then((res) => {
-      console.log("PRO RESPONSE", res.data);
-      setPros(Array.isArray(res.data) ? res.data : []);
-    })
-    .catch((err) => {
-      console.error(err);
-      setPros([]);
-    });
-};
+    api
+      .get("/pro")
+      .then((res) => {
+        console.log("PRO RESPONSE", res.data);
+        setPros(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setPros([]);
+      });
+  };
 
   // ✅ CKEDITOR CONFIG
   const editorConfig = {
@@ -112,14 +111,13 @@ const [changes, setChanges] = useState([
       "redo",
     ],
 
-list: {
-    properties: {
-      styles: true,
-      startIndex: true,
-      reversed: true,
+    list: {
+      properties: {
+        styles: true,
+        startIndex: true,
+        reversed: true,
+      },
     },
-  },
-
   };
 
   // ✅ SAVE (CREATE)
@@ -130,51 +128,40 @@ list: {
         return;
       }
 
-      if (
-  editingCode &&
-  !changeDescription.trim()
-) {
-  alert(
-    "Change Description is required"
-  );
-  return;
-}
+      if (editingCode && !changeDescription.trim()) {
+        alert("Change Description is required");
+        return;
+      }
 
-const invalidRegistro = registros.find(
-  (r) => !r.responsableResguardo
-);
+      const invalidRegistro = registros.find((r) => !r.responsableResguardo);
 
-if (invalidRegistro) {
-  alert(
-    "All registros must have a Responsable de Resguardo selected."
-  );
-  return;
-}
+      if (invalidRegistro) {
+        alert("All registros must have a Responsable de Resguardo selected.");
+        return;
+      }
 
       const username = `${user.firstName} ${user.lastName}`;
 
       const payload = {
-  ...data,
+        ...data,
 
-  preparedBy,
-  reviewedBy,
-  approvedBy,
+        preparedBy,
+        reviewedBy,
+        approvedBy,
 
-  preparedDate,
-  reviewedDate,
-  approvedDate,
+        preparedDate,
+        reviewedDate,
+        approvedDate,
 
-  changes,
-  changeDescription,
+        changes,
+        changeDescription,
 
-  registros,
+        registros,
 
-  updatedBy: username,
+        updatedBy: username,
 
-  sectionIds: selectedSections.map(
-    (s) => s.id
-  ),
-};
+        sectionIds: selectedSections.map((s) => s.id),
+      };
 
       console.log("editingCode", editingCode);
 
@@ -215,25 +202,24 @@ if (invalidRegistro) {
 
   // ✅ PREVIEW (IMPORTANT)
   const previewDoc = () => {
-    api.post("/pro/preview", {
-  ...data,
+    api
+      .post("/pro/preview", {
+        ...data,
 
-  preparedBy,
-  reviewedBy,
-  approvedBy,
+        preparedBy,
+        reviewedBy,
+        approvedBy,
 
-  preparedDate,
-  reviewedDate,
-  approvedDate,
+        preparedDate,
+        reviewedDate,
+        approvedDate,
 
-  changes,
+        changes,
 
-  registros,
+        registros,
 
-  sectionIds: selectedSections.map(
-    s => s.id
-  )
-})
+        sectionIds: selectedSections.map((s) => s.id),
+      })
       .then((res) => {
         setPreview(res.data);
       });
@@ -254,35 +240,22 @@ if (invalidRegistro) {
   };
 
   const action = (code, type) => {
-
-  api
-    .post(
-      `/pro/${code}/action`,
-      null,
-      {
+    api
+      .post(`/pro/${code}/action`, null, {
         params: {
           action: type,
-          userId: user.id
-        }
-      }
-    )
-    .then(() => {
+          userId: user.id,
+        },
+      })
+      .then(() => {
+        alert("✅ Updated: " + type);
 
-      alert("✅ Updated: " + type);
-
-      loadPros();
-
-    })
-    .catch((err) => {
-
-      alert(
-        err.response?.data?.message ||
-        "Action failed"
-      );
-
-    });
-
-};
+        loadPros();
+      })
+      .catch((err) => {
+        alert(err.response?.data?.message || "Action failed");
+      });
+  };
 
   const previewFromList = (p) => {
     api.post("/pro/preview", p).then((res) => {
@@ -319,24 +292,24 @@ if (invalidRegistro) {
 
     setSelectedSections([]); // ✅ reset sections (optional fix)
     setPreparedBy(p.preparedBy || "");
-setReviewedBy(p.reviewedBy || "");
-setApprovedBy(p.approvedBy || "");
+    setReviewedBy(p.reviewedBy || "");
+    setApprovedBy(p.approvedBy || "");
 
-setPreparedDate(p.preparedDate || "");
-setReviewedDate(p.reviewedDate || "");
-setApprovedDate(p.approvedDate || "");
+    setPreparedDate(p.preparedDate || "");
+    setReviewedDate(p.reviewedDate || "");
+    setApprovedDate(p.approvedDate || "");
 
-setChanges(
-  p.changes?.length
-    ? p.changes
-    : [
-        {
-          version: 0,
-          description: "Initial Release",
-          changeDate: null,
-        },
-      ]
-);
+    setChanges(
+      p.changes?.length
+        ? p.changes
+        : [
+            {
+              version: 0,
+              description: "Initial Release",
+              changeDate: null,
+            },
+          ],
+    );
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -390,38 +363,29 @@ setChanges(
   };
 
   const addChange = () => {
-  setChanges([
-    ...changes,
-    {
-      version: changes.length,
-      description: "",
-      changeDate: null,
-    },
-  ]);
-};
+    setChanges([
+      ...changes,
+      {
+        version: changes.length,
+        description: "",
+        changeDate: null,
+      },
+    ]);
+  };
 
-const updateChange = (
-  index,
-  field,
-  value
-) => {
-  const copy = [...changes];
+  const updateChange = (index, field, value) => {
+    const copy = [...changes];
 
-  copy[index][field] = value;
+    copy[index][field] = value;
 
-  setChanges(copy);
-};
+    setChanges(copy);
+  };
 
-const removeChange = (index) => {
-  setChanges(
-    changes.filter(
-      (_, i) => i !== index
-    )
-  );
-};
+  const removeChange = (index) => {
+    setChanges(changes.filter((_, i) => i !== index));
+  };
 
-const [changeDescription, setChangeDescription] =
-  useState("");
+  const [changeDescription, setChangeDescription] = useState("");
 
   return (
     <div className="container pro-container mt-4" style={{ padding: "20px" }}>
@@ -430,493 +394,419 @@ const [changeDescription, setChangeDescription] =
       {/* ========================================= */}
 
       {canEdit(user) && (
-
-  <div className="accordion mb-4">
-
-    <div className="accordion-item">
-
-      <h2 className="accordion-header">
-
-        <button
-  className="accordion-button collapsed"
-  style={{
-    background:
-      "linear-gradient(135deg,#1e3a8a,#2563eb)",
-    color: "white",
-    fontWeight: "600",
-    fontSize: "1.1rem"
-  }}      
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#proBuilder"
-        >
-            <i className="bi bi-journal-text me-2"></i>
-          {editingCode
-            ? `Edit PRO (${editingCode})`
-            : "Create PRO Document"}
-        </button>
-
-      </h2>
-
-      <div
-        id="proBuilder"
-        className="accordion-collapse collapse"
-      >
-
-        <div className="accordion-body">
-            {/* ✅ BASIC FIELDS */}
-            <div className="row">
-              <div className="col-md-4">
-                <input
-                  className="form-control mb-2"
-                  placeholder="Code (PRO-01)"
-                  value={data.code}
-                  disabled={editingCode !== null}
-                  onChange={(e) => setData({ ...data, code: e.target.value })}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <input
-                  className="form-control mb-2"
-                  placeholder="Name"
-                  value={data.name}
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <input
-                  className="form-control mb-2"
-                  placeholder="Title"
-                  value={data.title}
-                  onChange={(e) => setData({ ...data, title: e.target.value })}
-                />
-              </div>
-              <div className="row align-items-end">
-
-  <div className="col-md-4">
-    <label className="form-label">
-      Document Date
-    </label>
-
-    <input
-      type="date"
-      className="form-control"
-      value={data.documentDate || ""}
-      onChange={(e) =>
-        setData({
-          ...data,
-          documentDate: e.target.value,
-        })
-      }
-    />
-  </div>
-
-{!editingCode && (
-  <div className="col-md-4">
-
-  <div className="form-check form-switch">
-
-    <input
-      className="form-check-input"
-      type="checkbox"
-      checked={legacyDocument}
-      onChange={(e) =>
-        setLegacyDocument(
-          e.target.checked
-        )
-      }
-    />
-
-    <label className="form-check-label">
-      Historical Document
-    </label>
-
-    {legacyDocument ? (
-      <span className="badge bg-success ms-2">
-        APPROVED
-      </span>
-    ) : (
-      <span className="badge bg-warning text-dark ms-2">
-        DRAFT
-      </span>
-    )}
-
-  </div>
-
-</div>)}
-
-</div>
-            </div>
-
-{!editingCode && legacyDocument && (
-  <>
-
-            <hr />
-
-<h5>Workflow Information</h5>
-
-<div className="row">
-
-  <div className="col-md-4">
-
-    <label>Prepared By</label>
-
-    <input
-      className="form-control"
-      value={preparedBy}
-      onChange={(e) =>
-        setPreparedBy(e.target.value)
-      }
-    />
-
-    <label className="mt-2">
-      Prepared Date
-    </label>
-
-    <input
-      type="date"
-      className="form-control"
-      value={preparedDate}
-      onChange={(e) =>
-        setPreparedDate(
-          e.target.value
-        )
-      }
-    />
-
-  </div>
-
-  <div className="col-md-4">
-
-    <label>Reviewed By</label>
-
-    <input
-      className="form-control"
-      value={reviewedBy}
-      onChange={(e) =>
-        setReviewedBy(e.target.value)
-      }
-    />
-
-    <label className="mt-2">
-      Reviewed Date
-    </label>
-
-    <input
-      type="date"
-      className="form-control"
-      value={reviewedDate}
-      onChange={(e) =>
-        setReviewedDate(
-          e.target.value
-        )
-      }
-    />
-
-  </div>
-
-  <div className="col-md-4">
-
-    <label>Approved By</label>
-
-    <input
-      className="form-control"
-      value={approvedBy}
-      onChange={(e) =>
-        setApprovedBy(e.target.value)
-      }
-    />
-
-    <label className="mt-2">
-      Approved Date
-    </label>
-
-    <input
-      type="date"
-      className="form-control"
-      value={approvedDate}
-      onChange={(e) =>
-        setApprovedDate(
-          e.target.value
-        )
-      }
-    />
-
-  </div>
-
-</div>
-
-</>
-)}
-
-{!editingCode && legacyDocument && (
-  <>
-<hr />
-
-<h5>Change History</h5>
-
-<div className="table-responsive">
-
-  <table className="table table-bordered">
-
-    <thead className="table-light">
-
-      <tr>
-        <th>Version</th>
-        <th>Description</th>
-        <th>Date</th>
-        <th>Actions</th>
-      </tr>
-
-    </thead>
-
-    <tbody>
-
-      {changes.map((change, index) => (
-
-        <tr key={index}>
-
-          <td>
-            <input
-              type="number"
-              className="form-control"
-              value={change.version}
-              onChange={(e) =>
-                updateChange(
-                  index,
-                  "version",
-                  Number(e.target.value)
-                )
-              }
-            />
-          </td>
-
-          <td>
-            <input
-              className="form-control"
-              value={change.description}
-              onChange={(e) =>
-                updateChange(
-                  index,
-                  "description",
-                  e.target.value
-                )
-              }
-            />
-          </td>
-
-          <td>
-            <input
-              type="date"
-              className="form-control"
-              value={change.changeDate || ""}
-              onChange={(e) =>
-                updateChange(
-                  index,
-                  "changeDate",
-                  e.target.value
-                )
-              }
-            />
-          </td>
-
-          <td>
-            <button
-              className="btn btn-sm btn-danger"
-              onClick={() =>
-                removeChange(index)
-              }
-            >
-              Remove
-            </button>
-          </td>
-
-        </tr>
-
-      ))}
-
-    </tbody>
-
-  </table>
-
-</div>
-
-</>
-)}
-{editingCode && (
-  <>
-    <hr />
-
-    <h5>Revision Information</h5>
-
-    <div className="alert alert-warning">
-      Saving this document will create a new
-      revision and restart the approval workflow.
-    </div>
-
-    <label>
-      Change Description *
-    </label>
-
-    <textarea
-      className="form-control"
-      rows="3"
-      value={changeDescription}
-      onChange={(e) =>
-        setChangeDescription(
-          e.target.value
-        )
-      }
-    />
-
-  </>
-)}
-
-{(legacyDocument || editingCode) && (
-<button
-  className="btn btn-outline-primary btn-sm"
-  onClick={addChange}
->
-  + Add Change
-</button>
-)}
-
-
-            {/* ✅ EDITORS */}
-            <div className="mt-3">
-              <h6>OBJETIVO</h6>
-              <CKEditor
-                key={"objetivo_" + data.code}
-                editor={ClassicEditor}
-                config={editorConfig}
-                data={data.objetivo}
-                onChange={(e, editor) =>
-                  setData({ ...data, objetivo: editor.getData() })
-                }
-              />
-
-              <h6 className="mt-4">ALCANCE</h6>
-              <CKEditor
-                key={"alcance_" + data.code}
-                editor={ClassicEditor}
-                config={editorConfig}
-                data={data.alcance}
-                onChange={(e, editor) =>
-                  setData({ ...data, alcance: editor.getData() })
-                }
-              />
-
-              <div className="mb-2"></div>
-
-              <h6 className="mt-4">PROCEDIMIENTO</h6>
-
-<Editor
-  apiKey="0rofizmtdt5urrczcvs5wlzkkd3h8eckur9oojmzpio0g8wr"
-  value={data.procedimiento}
-  onEditorChange={(content) => {
-    console.log("Editor content changed:", content);
-
-    setData({
-      ...data,
-      procedimiento: content,
-    });
-  }}
-  init={{
-    height: 600,
-
-    menubar: true,
-
-    paste_preprocess: (plugin, args) => {
-
-      const div = document.createElement("div");
-
-      div.innerHTML = args.content;
-
-      // Remove empty paragraphs
-      div.querySelectorAll("p").forEach((p) => {
-
-        const text = p.textContent
-          ?.replace(/\u00A0/g, "")
-          .trim();
-
-        if (!text) {
-          p.remove();
-        }
-      });
-
-      // Clean Word styles
-      div.querySelectorAll("*").forEach((el) => {
-
-        el.removeAttribute("class");
-
-        const style = el.getAttribute("style");
-
-        if (!style) return;
-
-        const cleaned = style
-
-          .replace(/margin[^;]*;?/gi, "")
-          .replace(/text-indent[^;]*;?/gi, "")
-          .replace(/padding-left[^;]*;?/gi, "")
-          .replace(/tab-stops[^;]*;?/gi, "")
-          .replace(/mso-[^:]+:[^;]+;?/gi, "")
-          .replace(/border-image[^;]*;?/gi, "");
-
-        if (cleaned.trim()) {
-          el.setAttribute("style", cleaned);
-        } else {
-          el.removeAttribute("style");
-        }
-      });
-
-      args.content = div.innerHTML;
-    },
-
-    paste_as_text: false,
-
-    paste_remove_styles_if_webkit: true,
-
-    paste_webkit_styles: "none",
-
-    plugins: [
-      "paste",
-      "advlist",
-      "lists",
-      "table",
-      "link",
-      "code",
-      "fullscreen",
-      "searchreplace",
-      "wordcount",
-    ],
-
-    toolbar:
-      "undo redo | " +
-      "styles | " +
-      "bold italic underline | " +
-      "alignleft aligncenter alignright alignjustify | " +
-      "bullist numlist | " +
-      "outdent indent | " +
-      "table | " +
-      "link | " +
-      "removeformat | " +
-      "code fullscreen",
-
-    advlist_bullet_styles:
-      "default,circle,square",
-
-    advlist_number_styles:
-      "default,lower-alpha,upper-alpha,lower-roman,upper-roman",
-
-    lists_indent_on_tab: true,
-
-    table_default_attributes: {
-      border: "1",
-    },
-
-    content_style: `
+        <div className="accordion mb-4">
+          <div className="accordion-item">
+            <h2 className="accordion-header">
+              <button
+                className="accordion-button collapsed"
+                style={{
+                  background: "linear-gradient(135deg,#1e3a8a,#2563eb)",
+                  color: "white",
+                  fontWeight: "600",
+                  fontSize: "1.1rem",
+                }}
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#proBuilder"
+              >
+                <i className="bi bi-journal-text me-2"></i>
+                {editingCode
+                  ? `Edit PRO (${editingCode})`
+                  : "Create PRO Document"}
+              </button>
+            </h2>
+
+            <div id="proBuilder" className="accordion-collapse collapse">
+              <div className="accordion-body">
+                {/* ✅ BASIC FIELDS */}
+                <div className="row">
+                  <div className="col-md-4">
+                    <input
+                      className="form-control mb-2"
+                      placeholder="Code (PRO-01)"
+                      value={data.code}
+                      disabled={editingCode !== null}
+                      onChange={(e) =>
+                        setData({ ...data, code: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <input
+                      className="form-control mb-2"
+                      placeholder="Name"
+                      value={data.name}
+                      onChange={(e) =>
+                        setData({ ...data, name: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <input
+                      className="form-control mb-2"
+                      placeholder="Title"
+                      value={data.title}
+                      onChange={(e) =>
+                        setData({ ...data, title: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="row align-items-end">
+                    <div className="col-md-4">
+                      <label className="form-label">Document Date</label>
+
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={data.documentDate || ""}
+                        onChange={(e) =>
+                          setData({
+                            ...data,
+                            documentDate: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    {!editingCode && (
+                      <div className="col-md-4">
+                        <div className="form-check form-switch">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            checked={legacyDocument}
+                            onChange={(e) =>
+                              setLegacyDocument(e.target.checked)
+                            }
+                          />
+
+                          <label className="form-check-label">
+                            Historical Document
+                          </label>
+
+                          {legacyDocument ? (
+                            <span className="badge bg-success ms-2">
+                              APPROVED
+                            </span>
+                          ) : (
+                            <span className="badge bg-warning text-dark ms-2">
+                              DRAFT
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {!editingCode && legacyDocument && (
+                  <>
+                    <hr />
+
+                    <h5>Workflow Information</h5>
+
+                    <div className="row">
+                      <div className="col-md-4">
+                        <label>Prepared By</label>
+
+                        <input
+                          className="form-control"
+                          value={preparedBy}
+                          onChange={(e) => setPreparedBy(e.target.value)}
+                        />
+
+                        <label className="mt-2">Prepared Date</label>
+
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={preparedDate}
+                          onChange={(e) => setPreparedDate(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="col-md-4">
+                        <label>Reviewed By</label>
+
+                        <input
+                          className="form-control"
+                          value={reviewedBy}
+                          onChange={(e) => setReviewedBy(e.target.value)}
+                        />
+
+                        <label className="mt-2">Reviewed Date</label>
+
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={reviewedDate}
+                          onChange={(e) => setReviewedDate(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="col-md-4">
+                        <label>Approved By</label>
+
+                        <input
+                          className="form-control"
+                          value={approvedBy}
+                          onChange={(e) => setApprovedBy(e.target.value)}
+                        />
+
+                        <label className="mt-2">Approved Date</label>
+
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={approvedDate}
+                          onChange={(e) => setApprovedDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {!editingCode && legacyDocument && (
+                  <>
+                    <hr />
+
+                    <h5>Change History</h5>
+
+                    <div className="table-responsive">
+                      <table className="table table-bordered">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {changes.map((change, index) => (
+                            <tr key={index}>
+                              <td>
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  value={change.version}
+                                  onChange={(e) =>
+                                    updateChange(
+                                      index,
+                                      "version",
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                />
+                              </td>
+
+                              <td>
+                                <input
+                                  className="form-control"
+                                  value={change.description}
+                                  onChange={(e) =>
+                                    updateChange(
+                                      index,
+                                      "description",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </td>
+
+                              <td>
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  value={change.changeDate || ""}
+                                  onChange={(e) =>
+                                    updateChange(
+                                      index,
+                                      "changeDate",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </td>
+
+                              <td>
+                                <button
+                                  className="btn btn-sm btn-danger"
+                                  onClick={() => removeChange(index)}
+                                >
+                                  Remove
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+                {editingCode && (
+                  <>
+                    <hr />
+
+                    <h5>Revision Information</h5>
+
+                    <div className="alert alert-warning">
+                      Saving this document will create a new revision and
+                      restart the approval workflow.
+                    </div>
+
+                    <label>Change Description *</label>
+
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={changeDescription}
+                      onChange={(e) => setChangeDescription(e.target.value)}
+                    />
+                  </>
+                )}
+
+                {(legacyDocument || editingCode) && (
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={addChange}
+                  >
+                    + Add Change
+                  </button>
+                )}
+
+                {/* ✅ EDITORS */}
+                <div className="mt-3">
+                  <h6>OBJETIVO</h6>
+                  <CKEditor
+                    key={"objetivo_" + data.code}
+                    editor={ClassicEditor}
+                    config={editorConfig}
+                    data={data.objetivo}
+                    onChange={(e, editor) =>
+                      setData({ ...data, objetivo: editor.getData() })
+                    }
+                  />
+
+                  <h6 className="mt-4">ALCANCE</h6>
+                  <CKEditor
+                    key={"alcance_" + data.code}
+                    editor={ClassicEditor}
+                    config={editorConfig}
+                    data={data.alcance}
+                    onChange={(e, editor) =>
+                      setData({ ...data, alcance: editor.getData() })
+                    }
+                  />
+
+                  <div className="mb-2"></div>
+
+                  <h6 className="mt-4">PROCEDIMIENTO</h6>
+
+                  <Editor
+                    apiKey="0rofizmtdt5urrczcvs5wlzkkd3h8eckur9oojmzpio0g8wr"
+                    value={data.procedimiento}
+                    onEditorChange={(content) => {
+                      console.log("Editor content changed:", content);
+
+                      setData({
+                        ...data,
+                        procedimiento: content,
+                      });
+                    }}
+                    init={{
+                      height: 600,
+
+                      menubar: true,
+
+                      paste_preprocess: (plugin, args) => {
+                        const div = document.createElement("div");
+
+                        div.innerHTML = args.content;
+
+                        // Remove empty paragraphs
+                        div.querySelectorAll("p").forEach((p) => {
+                          const text = p.textContent
+                            ?.replace(/\u00A0/g, "")
+                            .trim();
+
+                          if (!text) {
+                            p.remove();
+                          }
+                        });
+
+                        // Clean Word styles
+                        div.querySelectorAll("*").forEach((el) => {
+                          el.removeAttribute("class");
+
+                          const style = el.getAttribute("style");
+
+                          if (!style) return;
+
+                          const cleaned = style
+
+                            .replace(/margin[^;]*;?/gi, "")
+                            .replace(/text-indent[^;]*;?/gi, "")
+                            .replace(/padding-left[^;]*;?/gi, "")
+                            .replace(/tab-stops[^;]*;?/gi, "")
+                            .replace(/mso-[^:]+:[^;]+;?/gi, "")
+                            .replace(/border-image[^;]*;?/gi, "");
+
+                          if (cleaned.trim()) {
+                            el.setAttribute("style", cleaned);
+                          } else {
+                            el.removeAttribute("style");
+                          }
+                        });
+
+                        args.content = div.innerHTML;
+                      },
+
+                      paste_as_text: false,
+
+                      paste_remove_styles_if_webkit: true,
+
+                      paste_webkit_styles: "none",
+
+                      plugins: [
+                        "paste",
+                        "advlist",
+                        "lists",
+                        "table",
+                        "link",
+                        "code",
+                        "fullscreen",
+                        "searchreplace",
+                        "wordcount",
+                      ],
+
+                      toolbar:
+                        "undo redo | " +
+                        "styles | " +
+                        "bold italic underline | " +
+                        "alignleft aligncenter alignright alignjustify | " +
+                        "bullist numlist | " +
+                        "outdent indent | " +
+                        "table | " +
+                        "link | " +
+                        "removeformat | " +
+                        "code fullscreen",
+
+                      advlist_bullet_styles: "default,circle,square",
+
+                      advlist_number_styles:
+                        "default,lower-alpha,upper-alpha,lower-roman,upper-roman",
+
+                      lists_indent_on_tab: true,
+
+                      table_default_attributes: {
+                        border: "1",
+                      },
+
+                      content_style: `
       body {
         font-family: Arial, sans-serif;
         font-size: 14px;
@@ -969,188 +859,196 @@ const [changeDescription, setChangeDescription] =
         padding: 4px;
       }
     `,
-  }}
-/>
-              <h6 className="mt-4">REGISTROS</h6>
+                    }}
+                  />
+                  <h6 className="mt-4">REGISTROS</h6>
 
-              <div className="table-responsive">
-                <table className="table table-bordered">
-                  <thead>
-                    <tr className="table-secondary">
-                      <th rowSpan="2">Código</th>
+                  <div className="table-responsive">
+                    <table className="table table-bordered">
+                      <thead>
+                        <tr className="table-secondary">
+                          <th rowSpan="2">Código</th>
 
-                      <th rowSpan="2">Nombre</th>
+                          <th rowSpan="2">Nombre</th>
 
-                      <th colSpan="3" className="text-center">
-                        Retención / Archivo activo
-                      </th>
+                          <th colSpan="3" className="text-center">
+                            Retención / Archivo activo
+                          </th>
 
-                      <th rowSpan="2">Actions</th>
-                    </tr>
+                          <th rowSpan="2">Actions</th>
+                        </tr>
 
-                    <tr className="table-secondary">
-                      <th>Almacenamiento</th>
+                        <tr className="table-secondary">
+                          <th>Almacenamiento</th>
 
-                      <th>Tiempo de retención y disposición</th>
+                          <th>Tiempo de retención y disposición</th>
 
-                      <th>Responsable de resguardo</th>
-                    </tr>
-                  </thead>
+                          <th>Responsable de resguardo</th>
+                        </tr>
+                      </thead>
 
-                  <tbody>
-                    {registros.map((r, index) => (
-                      <tr key={index}>
-                        {/* ✅ CODIGO */}
+                      <tbody>
+                        {registros.map((r, index) => (
+                          <tr key={index}>
+                            {/* ✅ CODIGO */}
 
-                        <td>
-                          <input
-                            className="form-control"
-                            value={r.codigo}
-                            onChange={(e) =>
-                              updateRegistro(index, "codigo", e.target.value)
-                            }
-                          />
-                        </td>
+                            <td>
+                              <input
+                                className="form-control"
+                                value={r.codigo}
+                                onChange={(e) =>
+                                  updateRegistro(
+                                    index,
+                                    "codigo",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </td>
 
-                        {/* ✅ NOMBRE */}
+                            {/* ✅ NOMBRE */}
 
-                        <td>
-                          <input
-                            className="form-control"
-                            value={r.nombre}
-                            onChange={(e) =>
-                              updateRegistro(index, "nombre", e.target.value)
-                            }
-                          />
-                        </td>
+                            <td>
+                              <input
+                                className="form-control"
+                                value={r.nombre}
+                                onChange={(e) =>
+                                  updateRegistro(
+                                    index,
+                                    "nombre",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </td>
 
-                        {/* ✅ ALMACENAMIENTO */}
+                            {/* ✅ ALMACENAMIENTO */}
 
-                        <td>
-                          <input
-                            className="form-control"
-                            value={r.almacenamiento}
-                            onChange={(e) =>
-                              updateRegistro(
-                                index,
-                                "almacenamiento",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </td>
+                            <td>
+                              <input
+                                className="form-control"
+                                value={r.almacenamiento}
+                                onChange={(e) =>
+                                  updateRegistro(
+                                    index,
+                                    "almacenamiento",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </td>
 
-                        {/* ✅ TIEMPO */}
+                            {/* ✅ TIEMPO */}
 
-                        <td>
-                          <input
-                            className="form-control"
-                            value={r.tiempoRetencion}
-                            onChange={(e) =>
-                              updateRegistro(
-                                index,
-                                "tiempoRetencion",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </td>
+                            <td>
+                              <input
+                                className="form-control"
+                                value={r.tiempoRetencion}
+                                onChange={(e) =>
+                                  updateRegistro(
+                                    index,
+                                    "tiempoRetencion",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </td>
 
-                        {/* ✅ RESPONSABLE */}
+                            {/* ✅ RESPONSABLE */}
 
-                        <td>
-                          <select
-                            className="form-select"
-                            value={r.responsableResguardo}
-                            onChange={(e) =>
-                              updateRegistro(
-                                index,
-                                "responsableResguardo",
-                                e.target.value,
-                              )
-                            }
-                          >
-                            <option value="">Select</option>
+                            <td>
+                              <select
+                                className="form-select"
+                                value={r.responsableResguardo}
+                                onChange={(e) =>
+                                  updateRegistro(
+                                    index,
+                                    "responsableResguardo",
+                                    e.target.value,
+                                  )
+                                }
+                              >
+                                <option value="">Select</option>
 
-                            <option value="COORDINADOR_SARI">
-                              Coordinador del SARI
-                            </option>
+                                <option value="COORDINADOR_SARI">
+                                  Coordinador del SARI
+                                </option>
 
-                            <option value="RESPONSABLE_VENTAS_COMPRAS">
-                              Responsable de Ventas y Compras
-                            </option>
+                                <option value="RESPONSABLE_VENTAS_COMPRAS">
+                                  Responsable de Ventas y Compras
+                                </option>
 
-                            <option value="AGENTES_VENTAS">
-                              Agentes de Ventas
-                            </option>
+                                <option value="AGENTES_VENTAS">
+                                  Agentes de Ventas
+                                </option>
 
-                            <option value="COORDINADOR_SISTEMA_SARI">
-                              Coordinador de Sistema SARI
-                            </option>
-                          </select>
-                        </td>
+                                <option value="COORDINADOR_SISTEMA_SARI">
+                                  Coordinador de Sistema SARI
+                                </option>
+                              </select>
+                            </td>
 
-                        {/* ✅ DELETE */}
+                            {/* ✅ DELETE */}
 
-                        <td>
-                          <button
-                            className="
+                            <td>
+                              <button
+                                className="
                 btn
                 btn-sm
                 btn-outline-danger
               "
-                            onClick={() => removeRegistro(index)}
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                                onClick={() => removeRegistro(index)}
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-              <button
-                className="
+                  <button
+                    className="
     btn
     btn-outline-primary
     btn-sm
   "
-                onClick={addRegistro}
-              >
-                + Add Registro
-              </button>
-            </div>
-            <h5 className="mt-4">Reusable Sections</h5>
-
-            <div className="accordion mt-4">
-              <div className="accordion-item">
-                <h2 className="accordion-header">
-                  <button
-                    className="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#sectionsCollapse"
+                    onClick={addRegistro}
                   >
-                    📚 Reusable Sections ({sections.length})
+                    + Add Registro
                   </button>
-                </h2>
+                </div>
+                <h5 className="mt-4">Reusable Sections</h5>
 
-                <div
-                  id="sectionsCollapse"
-                  className="accordion-collapse collapse"
-                >
-                  <div
-                    className="accordion-body"
-                    style={{
-                      maxHeight: "300px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {sections.map((s) => (
+                <div className="accordion mt-4">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button
+                        className="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#sectionsCollapse"
+                      >
+                        📚 Reusable Sections ({sections.length})
+                      </button>
+                    </h2>
+
+                    <div
+                      id="sectionsCollapse"
+                      className="accordion-collapse collapse"
+                    >
                       <div
-                        key={s.id}
-                        className="
+                        className="accordion-body"
+                        style={{
+                          maxHeight: "300px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {sections.map((s) => (
+                          <div
+                            key={s.id}
+                            className="
               border
               rounded
               p-2
@@ -1159,53 +1057,56 @@ const [changeDescription, setChangeDescription] =
               justify-content-between
               align-items-center
             "
-                      >
-                        <div>
-                          <b>{s.code}</b> {s.name}
-                        </div>
+                          >
+                            <div>
+                              <b>{s.code}</b> {s.name}
+                            </div>
 
-                        <button
-                          className="
+                            <button
+                              className="
                 btn
                 btn-sm
                 btn-outline-primary
               "
-                          onClick={() => insertSection(s)}
-                        >
-                          Insert
-                        </button>
+                              onClick={() => insertSection(s)}
+                            >
+                              Insert
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="accordion mt-3">
-              <div className="accordion-item">
-                <h2 className="accordion-header">
-                  <button
-                    className="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#formsCollapse"
-                  >
-                    📄 Form Templates ({forms.length})
-                  </button>
-                </h2>
+                <div className="accordion mt-3">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button
+                        className="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#formsCollapse"
+                      >
+                        📄 Form Templates ({forms.length})
+                      </button>
+                    </h2>
 
-                <div id="formsCollapse" className="accordion-collapse collapse">
-                  <div
-                    className="accordion-body"
-                    style={{
-                      maxHeight: "300px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {forms.map((f) => (
+                    <div
+                      id="formsCollapse"
+                      className="accordion-collapse collapse"
+                    >
                       <div
-                        key={f.id}
-                        className="
+                        className="accordion-body"
+                        style={{
+                          maxHeight: "300px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {forms.map((f) => (
+                          <div
+                            key={f.id}
+                            className="
               border
               rounded
               p-2
@@ -1214,130 +1115,125 @@ const [changeDescription, setChangeDescription] =
               justify-content-between
               align-items-center
             "
-                      >
-                        <div>
-                          <b>{f.code}</b> {f.title}
-                        </div>
+                          >
+                            <div>
+                              <b>{f.code}</b> {f.title}
+                            </div>
 
-                        <button
-                          className="
+                            <button
+                              className="
                 btn
                 btn-sm
                 btn-outline-primary
               "
-                          onClick={() => insertForm(f)}
-                        >
-                          Insert
-                        </button>
+                              onClick={() => insertForm(f)}
+                            >
+                              Insert
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* ✅ ACTION BUTTONS */}
-            <div className="mt-4">
-              <button
-                className="btn btn-success me-2"
-                onClick={save}
-                disabled={!canPreview}
-              >
-                Save
-              </button>
-              {editingCode && (
-                <button
-                  className="btn btn-outline-danger ms-2"
-                  onClick={() => {
-                    setEditingCode(null);
-                    setData({
-                      code: "",
-                      name: "",
-                      title: "",
-                      documentDate: "",
-                      objetivo: "",
-                      alcance: "",
-                      procedimiento: "",
-                    });
-
-setRegistros([
-    {
-      codigo: "",
-      nombre: "",
-      almacenamiento: "",
-      tiempoRetencion: "",
-      responsableResguardo: "",
-    },
-  ]);
-
-  setChangeDescription("");
-
-setPreparedBy("");
-  setReviewedBy("");
-  setApprovedBy("");
-
-  setPreparedDate("");
-  setReviewedDate("");
-  setApprovedDate("");
-
-
-  setChanges([
-    {
-      version: 0,
-      description: "Emisión inicial",
-      changeDate: null,
-    },
-  ]);
-
-  setPreview(null);
-  setSelectedSections([]);
-                  }}
-                >
-                  Cancel
-                </button>
-              )}
-
-              <button
-                className="btn btn-outline-secondary"
-                onClick={previewDoc}
-                disabled={!canPreview}
-                title={!canPreview ? "Complete all sections first" : ""}
-              >
-                Preview
-              </button>
-            </div>
-
-            {preview && (
-              <div className="card mt-4 border">
-                <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                  <b>Preview</b>
-
-                  {/* ✅ CLOSE BUTTON */}
+                {/* ✅ ACTION BUTTONS */}
+                <div className="mt-4">
                   <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => setPreview(null)}
+                    className="btn btn-success me-2"
+                    onClick={save}
+                    disabled={!canPreview}
                   >
-                    Close
+                    Save
+                  </button>
+                  {editingCode && (
+                    <button
+                      className="btn btn-outline-danger ms-2"
+                      onClick={() => {
+                        setEditingCode(null);
+                        setData({
+                          code: "",
+                          name: "",
+                          title: "",
+                          documentDate: "",
+                          objetivo: "",
+                          alcance: "",
+                          procedimiento: "",
+                        });
+
+                        setRegistros([
+                          {
+                            codigo: "",
+                            nombre: "",
+                            almacenamiento: "",
+                            tiempoRetencion: "",
+                            responsableResguardo: "",
+                          },
+                        ]);
+
+                        setChangeDescription("");
+
+                        setPreparedBy("");
+                        setReviewedBy("");
+                        setApprovedBy("");
+
+                        setPreparedDate("");
+                        setReviewedDate("");
+                        setApprovedDate("");
+
+                        setChanges([
+                          {
+                            version: 0,
+                            description: "Emisión inicial",
+                            changeDate: null,
+                          },
+                        ]);
+
+                        setPreview(null);
+                        setSelectedSections([]);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  )}
+
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={previewDoc}
+                    disabled={!canPreview}
+                    title={!canPreview ? "Complete all sections first" : ""}
+                  >
+                    Preview
                   </button>
                 </div>
 
-                <div
-                  className="card-body"
-                  style={{ maxHeight: "400px", overflow: "auto" }}
-                >
-                  <div dangerouslySetInnerHTML={{ __html: preview }} />
-                </div>
-              </div>
-            )}
+                {preview && (
+                  <div className="card mt-4 border">
+                    <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                      <b>Preview</b>
+
+                      {/* ✅ CLOSE BUTTON */}
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => setPreview(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
+
+                    <div
+                      className="card-body"
+                      style={{ maxHeight: "400px", overflow: "auto" }}
+                    >
+                      <div dangerouslySetInnerHTML={{ __html: preview }} />
+                    </div>
                   </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-)}
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ========================================= */}
       {/* ✅ PRO LIST */}
@@ -1351,23 +1247,21 @@ setPreparedBy("");
         <div className="card-body">
           {pros.map((p) => (
             <div
-  key={p.id}
-  className="
+              key={p.id}
+              className="
     card
     shadow-sm
     border-0
     mb-3
   "
-  style={{ background: "#fafafa" }}
->
-            
+              style={{ background: "#fafafa" }}
+            >
               {/* ✅ TITLE ROW */}
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <b>{p.code}</b> {p.name}
-                
                   <div
-  className="
+                    className="
     d-flex
     flex-wrap
     gap-3
@@ -1375,24 +1269,13 @@ setPreparedBy("");
     text-muted
     mt-2
   "
->
-
-  Prepared:
-  {" "}
-  {p.preparedBy || "-"}
-  {" | "}
-
-  Reviewed:
-  {" "}
-  {p.reviewedBy || "-"}
-  {" | "}
-
-  Approved:
-  {" "}
-  {p.approvedBy || "-"}
-
-</div>
-                
+                  >
+                    Prepared: {p.preparedBy || "-"}
+                    {" | "}
+                    Reviewed: {p.reviewedBy || "-"}
+                    {" | "}
+                    Approved: {p.approvedBy || "-"}
+                  </div>
                 </div>
 
                 {/* ✅ STATUS BADGE */}
@@ -1438,7 +1321,7 @@ setPreparedBy("");
                     onClick={() => action(p.code, "PREPARE")}
                   >
                     <i className="bi bi-pencil-square me-1"></i>
-Prepare
+                    Prepare
                   </button>
                 )}
 
@@ -1448,7 +1331,7 @@ Prepare
                     onClick={() => action(p.code, "REVIEW")}
                   >
                     <i className="bi bi-clipboard-check me-1"></i>
-Review
+                    Review
                   </button>
                 )}
 
@@ -1458,7 +1341,7 @@ Review
                     onClick={() => action(p.code, "APPROVE")}
                   >
                     <i className="bi bi-shield-check me-1"></i>
-Approve
+                    Approve
                   </button>
                 )}
 

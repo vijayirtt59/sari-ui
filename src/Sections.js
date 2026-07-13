@@ -161,16 +161,10 @@ function Sections() {
   return (
     <div className="container mt-4">
       <div className="card shadow-sm mb-3">
-
-  <div className="card-header d-flex justify-content-between align-items-center">
-
-    <h5 className="mb-0">
-      🗂 Sections
-    </h5>
-
-  </div>
-
-</div>
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">🗂 Sections</h5>
+        </div>
+      </div>
 
       {message && (
         <div className={`alert alert-${message.type}`}>{message.text}</div>
@@ -289,91 +283,75 @@ function Sections() {
 
       {/* ✅ SECTION LIST */}
       <div
-  className="card shadow mb-3"
-  style={{ cursor: "pointer" }}
-  onClick={() => setShowSections(!showSections)}
->
+        className="card shadow mb-3"
+        style={{ cursor: "pointer" }}
+        onClick={() => setShowSections(!showSections)}
+      >
+        <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">{showSections ? "▼" : "▶"} All Sections</h5>
 
-  <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-
-    <h5 className="mb-0">
-      {showSections ? "▼" : "▶"} All Sections
-    </h5>
-
-    <span className="badge bg-light text-dark">
-      {sections.length}
-    </span>
-
-  </div>
-
-</div>
+          <span className="badge bg-light text-dark">{sections.length}</span>
+        </div>
+      </div>
       {showSections &&
         sections.map((s) => (
           <div
-  key={s.id}
-  className="card shadow-sm mb-2"
-  style={{
-  transition: "all .2s ease",
-  cursor: "pointer",
-}}
-onClick={() => setPreview(s)}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.background =
-      "#f8fafc";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.background =
-      "white";
-  }}
->
+            key={s.id}
+            className="card shadow-sm mb-2"
+            style={{
+              transition: "all .2s ease",
+              cursor: "pointer",
+            }}
+            onClick={() => setPreview(s)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#f8fafc";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "white";
+            }}
+          >
             <div className="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <div className="fw-bold">{s.name}</div>
+              </div>
 
- <div>
+              <div>
+                <button
+                  className="btn btn-sm btn-outline-warning me-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    edit(s);
+                  }}
+                >
+                  ✏️ Edit
+                </button>
 
-  <div className="fw-bold">
-    {s.name}
-  </div>
+                <button
+                  className="btn btn-sm btn-secondary me-2"
+                  onClick={() => setPreview(s)}
+                >
+                  📄 Preview
+                </button>
 
-</div>
+                <button
+                  className="btn btn-sm btn-success me-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    download(s.id);
+                  }}
+                >
+                  ⬇ PDF
+                </button>
 
-<div>
-
-  <button
-    className="btn btn-sm btn-outline-warning me-2"
-                onClick={(e) => {
-  e.stopPropagation();
-  edit(s);
-}}
-              >
-                ✏️ Edit
-              </button>
-
-              <button
-                className="btn btn-sm btn-secondary me-2"
-                onClick={() => setPreview(s)}
-              >
-                📄 Preview
-              </button>
-
-              <button
-                className="btn btn-sm btn-success me-2"
-                onClick={(e) => {
-  e.stopPropagation();
-  download(s.id);
-}}
-              >
-                ⬇ PDF
-              </button>
-
-              <button
-                className="btn btn-sm btn-outline-danger"
-                onClick={(e) => {
-  e.stopPropagation();
-  askDelete(s);
-}}
-              >
-                🗑 Delete
-              </button>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    askDelete(s);
+                  }}
+                >
+                  🗑 Delete
+                </button>
               </div>
             </div>
           </div>
@@ -381,135 +359,101 @@ onClick={() => setPreview(s)}
 
       {/* ✅ PREVIEW */}
       {preview && (
-
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: "rgba(0,0,0,0.5)",
-      zIndex: 9998,
-    }}
-  >
-
-    <div
-      className="card shadow"
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        width: "55%",
-        height: "100%",
-        overflow: "auto",
-        borderRadius: 0,
-      }}
-    >
-
-      <div
-        className="
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9998,
+          }}
+        >
+          <div
+            className="card shadow"
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              width: "55%",
+              height: "100%",
+              overflow: "auto",
+              borderRadius: 0,
+            }}
+          >
+            <div
+              className="
           card-header
           bg-primary
           text-white
           d-flex
           justify-content-between
         "
-      >
-
-        <div>
-
-          <div className="badge bg-light text-dark mb-2">
-            {preview.code}
-          </div>
-
-          <h4 className="mb-0">
-            {preview.name}
-          </h4>
-
-        </div>
-
-        <button
-          className="btn btn-light btn-sm"
-          onClick={() => setPreview(null)}
-        >
-          Close
-        </button>
-
-      </div>
-
-      <div className="card-body">
-
-        <div className="row mb-4">
-
-          <div className="col-md-6">
-
-            <div className="card bg-light">
-
-              <div className="card-body text-center">
-
-                <small>Code</small>
-
-                <div className="fw-bold">
+            >
+              <div>
+                <div className="badge bg-light text-dark mb-2">
                   {preview.code}
                 </div>
 
+                <h4 className="mb-0">{preview.name}</h4>
               </div>
 
+              <button
+                className="btn btn-light btn-sm"
+                onClick={() => setPreview(null)}
+              >
+                Close
+              </button>
             </div>
 
-          </div>
+            <div className="card-body">
+              <div className="row mb-4">
+                <div className="col-md-6">
+                  <div className="card bg-light">
+                    <div className="card-body text-center">
+                      <small>Code</small>
 
-          <div className="col-md-6">
-
-            <div className="card bg-light">
-
-              <div className="card-body text-center">
-
-                <small>Date</small>
-
-                <div className="fw-bold">
-                  {preview.documentDate || "-"}
+                      <div className="fw-bold">{preview.code}</div>
+                    </div>
+                  </div>
                 </div>
 
+                <div className="col-md-6">
+                  <div className="card bg-light">
+                    <div className="card-body text-center">
+                      <small>Date</small>
+
+                      <div className="fw-bold">
+                        {preview.documentDate || "-"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              <div className="mb-3">
+                <button
+                  className="btn btn-success"
+                  onClick={() => download(preview.id)}
+                >
+                  ⬇ Download PDF
+                </button>
+              </div>
+
+              <hr />
+
+              <h4 className="mb-3">📄 Section Content</h4>
+
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: preview.content,
+                }}
+              />
             </div>
-
           </div>
-
         </div>
-
-        <div className="mb-3">
-
-          <button
-            className="btn btn-success"
-            onClick={() => download(preview.id)}
-          >
-            ⬇ Download PDF
-          </button>
-
-        </div>
-
-        <hr />
-
-        <h4 className="mb-3">
-          📄 Section Content
-        </h4>
-
-        <div
-          dangerouslySetInnerHTML={{
-            __html: preview.content,
-          }}
-        />
-
-      </div>
-
-    </div>
-
-  </div>
-
-)}
+      )}
       {showDeleteModal && (
         <div
           style={{

@@ -28,12 +28,10 @@ function CreateDocument({ user, role, docs, onCreated, selectedCode }) {
   const [availableImages, setAvailableImages] = useState([]);
   const [editorInstance, setEditorInstance] = useState(null);
 
-  const [showCreateForm, setShowCreateForm] =
-  useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [viewDoc, setViewDoc] = useState(null);
   const [showImages, setShowImages] = useState(false);
-  const [legacyDocument, setLegacyDocument] =
-  useState(false);
+  const [legacyDocument, setLegacyDocument] = useState(false);
 
   const loadImages = () => {
     api.get("/doc-images").then((res) => {
@@ -175,8 +173,7 @@ function CreateDocument({ user, role, docs, onCreated, selectedCode }) {
 
       resetForm();
 
-setShowCreateForm(false);
-
+      setShowCreateForm(false);
 
       if (onCreated) onCreated();
     });
@@ -184,16 +181,15 @@ setShowCreateForm(false);
 
   // ✅ EDIT CLICK
   const handleEdit = (doc) => {
+    setShowCreateForm(true);
 
-  setShowCreateForm(true);
-
-  setCode(doc.code);
-  setTitle(doc.title);
-  setName(doc.name);
-  setDate(doc.date || "");
-  setContent(doc.content || "");
-  setEditingId(doc.id);
-};
+    setCode(doc.code);
+    setTitle(doc.title);
+    setName(doc.name);
+    setDate(doc.date || "");
+    setContent(doc.content || "");
+    setEditingId(doc.id);
+  };
 
   // ✅ DOWNLOAD PDF
   const handleDownload = (code) => {
@@ -258,32 +254,20 @@ setShowCreateForm(false);
 
   const [message, setMessage] = useState(null);
 
-  const workflowAction = (
-  id,
-  action
-) => {
+  const workflowAction = (id, action) => {
+    const userId = user.id;
 
-  const userId = user.id;
-
-  api.post(
-  `/docs/${id}/action`,
-  null,
-  {
-    params: {
-      action,
-      userId
-    }
-  }
-)
-    .catch((err) => {
-
-      alert(
-        err.response?.data?.message ||
-        "Workflow action failed"
-      );
-
-    });
-};
+    api
+      .post(`/docs/${id}/action`, null, {
+        params: {
+          action,
+          userId,
+        },
+      })
+      .catch((err) => {
+        alert(err.response?.data?.message || "Workflow action failed");
+      });
+  };
 
   // =========================================
   // ✅ VIEW MODE (ALL USERS)
@@ -432,36 +416,25 @@ setShowCreateForm(false);
       )}
       {/* ✅ HEADER */}
 
-{role === "ADMIN" && (
-  <div className="card shadow-sm mb-3">
+      {role === "ADMIN" && (
+        <div className="card shadow-sm mb-3">
+          <div className="card-header d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">🛡 Policies & Governance</h5>
 
-    <div className="card-header d-flex justify-content-between align-items-center">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setShowCreateForm(!showCreateForm)}
+            >
+              {showCreateForm ? "Close Form" : "Create Document"}
+            </button>
+          </div>
+        </div>
+      )}
 
-      <h5 className="mb-0">
-        🛡 Policies & Governance
-      </h5>
-
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={() =>
-          setShowCreateForm(!showCreateForm)
-        }
-      >
-        {showCreateForm
-          ? "Close Form"
-          : "Create Document"}
-      </button>
-
-    </div>
-
-  </div>
-)}
-
-{/* ✅ FORM */}
-{role === "ADMIN" &&
- showCreateForm && (
-  <div className="card shadow mb-4">
+      {/* ✅ FORM */}
+      {role === "ADMIN" && showCreateForm && (
+        <div className="card shadow mb-4">
           <div className="card-header bg-primary text-white d-flex justify-content-between">
             <h5>{editingId ? "Edit Document" : "Create Document"}</h5>
 
@@ -517,27 +490,21 @@ setShowCreateForm(false);
                 />
               </div>
               {!editingId && (
-  <div className="col-md-4">
+                <div className="col-md-4">
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={legacyDocument}
+                      onChange={(e) => setLegacyDocument(e.target.checked)}
+                    />
 
-    <div className="form-check form-switch">
-
-      <input
-        className="form-check-input"
-        type="checkbox"
-        checked={legacyDocument}
-        onChange={(e) =>
-          setLegacyDocument(e.target.checked)
-        }
-      />
-
-      <label className="form-check-label">
-        Historical Document
-      </label>
-
-    </div>
-
-  </div>
-)}
+                    <label className="form-check-label">
+                      Historical Document
+                    </label>
+                  </div>
+                </div>
+              )}
               {editingId && (
                 <>
                   <div className="alert alert-warning">
@@ -725,24 +692,19 @@ setShowCreateForm(false);
 
               <hr />
 
-              
-<div className="mt-4">
+              <div className="mt-4">
+                <div
+                  className="card p-2 mb-3"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setShowImages(!showImages)}
+                >
+                  <h5 className="mb-0">
+                    {showImages ? "▼" : "▶"} Document Images
+                  </h5>
+                </div>
 
-  <div
-    className="card p-2 mb-3"
-    style={{ cursor: "pointer" }}
-    onClick={() =>
-      setShowImages(!showImages)
-    }
-  >
-    <h5 className="mb-0">
-      {showImages ? "▼" : "▶"} Document Images
-    </h5>
-  </div>
-
-  {showImages && (
- <div className="card-body">
-
+                {showImages && (
+                  <div className="card-body">
                     <div className="row">
                       <div className="col-md-8">
                         <input
@@ -765,7 +727,7 @@ setShowCreateForm(false);
                           Upload Image
                         </button>
                       </div>
-                    </div> 
+                    </div>
 
                     <hr />
 
@@ -813,18 +775,15 @@ setShowCreateForm(false);
                     )}
 
                     <div className="alert alert-info mt-3 mb-0">
-  Clicking <b>Insert</b> will add:
-  <div className="mt-2">
-    <code>[IMAGE:file-name.png]</code>
-  </div>
-  into the document.
-</div>
-
-</div>
-
-)}
-
-</div>
+                      Clicking <b>Insert</b> will add:
+                      <div className="mt-2">
+                        <code>[IMAGE:file-name.png]</code>
+                      </div>
+                      into the document.
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <button className="btn btn-success">
                 {editingId ? "Update Document" : "Create Document"}
@@ -836,137 +795,104 @@ setShowCreateForm(false);
 
       {/* ✅ LIST */}
       <div className="card shadow">
+        <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">📚 Controlled Documents</h5>
 
-  <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-
-    <h5 className="mb-0">
-      📚 Controlled Documents
-    </h5>
-
-    <span className="badge bg-light text-dark">
-      {docs?.length || 0}
-    </span>
-
-  </div>
-
+          <span className="badge bg-light text-dark">{docs?.length || 0}</span>
+        </div>
 
         <div className="card-body">
           {docs && docs.length > 0 ? (
             docs.map((doc) => (
               <div
-  key={doc.id}
-  className="
+                key={doc.id}
+                className="
     d-flex
     justify-content-between
     align-items-center
     border-bottom
     py-3
   "
-  style={{
-    cursor: "pointer",
-     transition: "all .2s ease"
-  }}
-  onMouseEnter={(e) => {
-  e.currentTarget.style.background =
-    "#f8fafc";
-}}
-onMouseLeave={(e) => {
-  e.currentTarget.style.background =
-    "white";
-}}
-  onClick={() =>
-    setViewDoc(doc)
-  }
->
+                style={{
+                  cursor: "pointer",
+                  transition: "all .2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#f8fafc";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "white";
+                }}
+                onClick={() => setViewDoc(doc)}
+              >
                 <div>
+                  <div className="fw-bold">{doc.code}</div>
 
-  <div className="fw-bold">
-    {doc.code}
-  </div>
+                  <small className="text-muted">{doc.name}</small>
 
-  <small className="text-muted">
-    {doc.name}
-  </small>
-
-  <span
-  className={`badge ms-2 ${
-    doc.status === "APPROVED"
-      ? "bg-success"
-      : doc.status === "REVIEWED"
-      ? "bg-info"
-      : doc.status === "PREPARED"
-      ? "bg-warning text-dark"
-      : "bg-secondary"
-  }`}
->
-  {doc.status}
-</span>
-
-</div>
+                  <span
+                    className={`badge ms-2 ${
+                      doc.status === "APPROVED"
+                        ? "bg-success"
+                        : doc.status === "REVIEWED"
+                          ? "bg-info"
+                          : doc.status === "PREPARED"
+                            ? "bg-warning text-dark"
+                            : "bg-secondary"
+                    }`}
+                  >
+                    {doc.status}
+                  </span>
+                </div>
 
                 <div>
                   {doc.status === "DRAFT" &&
- user.systemRoles?.includes("PREPARER") && (
+                    user.systemRoles?.includes("PREPARER") && (
+                      <button
+                        className="btn btn-sm btn-primary me-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          workflowAction(doc.id, "PREPARE");
+                        }}
+                      >
+                        <i className="bi bi-pencil-square me-1"></i>
+                        Prepare
+                      </button>
+                    )}
 
-  <button
-    className="btn btn-sm btn-primary me-2"
-    onClick={(e) => {
-      e.stopPropagation();
-      workflowAction(
-        doc.id,
-        "PREPARE"
-      );
-    }}
-  >
-    <i className="bi bi-pencil-square me-1"></i>
-    Prepare
-  </button>
+                  {doc.status === "PREPARED" &&
+                    user.systemRoles?.includes("REVIEWER") && (
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          workflowAction(doc.id, "REVIEW");
+                        }}
+                      >
+                        <i className="bi bi-search me-1"></i>
+                        Review
+                      </button>
+                    )}
 
-)}
-
-{doc.status === "PREPARED" &&
- user.systemRoles?.includes("REVIEWER") && (
-
-  <button
-    className="btn btn-sm btn-warning me-2"
-    onClick={(e) => {
-      e.stopPropagation();
-      workflowAction(
-        doc.id,
-        "REVIEW"
-      );
-    }}
-  >
-    <i className="bi bi-search me-1"></i>
-    Review
-  </button>
-
-)}
-
-{doc.status === "REVIEWED" &&
- user.systemRoles?.includes("APPROVER") && (
-
-  <button
-    className="btn btn-sm btn-success me-2"
-    onClick={(e) => {
-      e.stopPropagation();
-      workflowAction(
-        doc.id,
-        "APPROVE"
-      );
-    }}
-  >
-    <i className="bi bi-check-circle me-1"></i>
-    Approve
-  </button>
-
-)}
+                  {doc.status === "REVIEWED" &&
+                    user.systemRoles?.includes("APPROVER") && (
+                      <button
+                        className="btn btn-sm btn-success me-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          workflowAction(doc.id, "APPROVE");
+                        }}
+                      >
+                        <i className="bi bi-check-circle me-1"></i>
+                        Approve
+                      </button>
+                    )}
                   <button
                     className="btn btn-sm btn-outline-success me-2"
                     onClick={(e) => {
-  e.stopPropagation();
-  handleDownload(doc.code);
-}}
+                      e.stopPropagation();
+                      handleDownload(doc.code);
+                    }}
                   >
                     📄 PDF
                   </button>
@@ -976,21 +902,21 @@ onMouseLeave={(e) => {
                       <button
                         className="btn btn-sm btn-outline-warning me-2"
                         onClick={(e) => {
-  e.stopPropagation();
-  handleEdit(doc);
-}}
+                          e.stopPropagation();
+                          handleEdit(doc);
+                        }}
                       >
-                      ✏️ Edit
+                        ✏️ Edit
                       </button>
 
                       <button
                         className="btn btn-sm btn-outline-danger"
                         onClick={(e) => {
-  e.stopPropagation();
-  askDelete(doc);
-}}
+                          e.stopPropagation();
+                          askDelete(doc);
+                        }}
                       >
-                      🗑 Delete
+                        🗑 Delete
                       </button>
                     </>
                   )}
@@ -1003,298 +929,201 @@ onMouseLeave={(e) => {
         </div>
       </div>
       {viewDoc && (
-
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background:
-        "rgba(0,0,0,0.5)",
-      zIndex: 9998,
-      overflowY: "auto",
-      padding: 0,
-    }}
-  >
-
-    <div
-      className="card shadow"
-      style={{
-  position: "fixed",
-  top: 0,
-  right: 0,
-  width: "55%",
-  height: "100%",
-  borderRadius: 0,
-  overflow: "auto",
-}}
-    >
-
-      <div
-        className="
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9998,
+            overflowY: "auto",
+            padding: 0,
+          }}
+        >
+          <div
+            className="card shadow"
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              width: "55%",
+              height: "100%",
+              borderRadius: 0,
+              overflow: "auto",
+            }}
+          >
+            <div
+              className="
           card-header
           bg-primary
           text-white
           d-flex
           justify-content-between
         "
-      >
+            >
+              <div>
+                <div className="badge bg-light text-dark mb-2">
+                  {viewDoc.code}
+                </div>
 
-        <div>
+                <h4 className="mb-0">{viewDoc.name}</h4>
+              </div>
 
-          
-<div
-    className="badge bg-light text-dark mb-2"
-  >
-    {viewDoc.code}
-  </div>
-
-
-          <h4 className="mb-0">
-            {viewDoc.name}
-          </h4>
-
-        </div>
-
-        <button
-          className="
+              <button
+                className="
             btn
             btn-light
             btn-sm
           "
-          onClick={() =>
-            setViewDoc(null)
-          }
-        >
-          Close
-        </button>
-
-      </div>
-
-      <div className="card-body">
-        <div className="card-body">
-
-  <div className="row mb-4">
-
-    <div className="col-md-4">
-
-      <div className="card bg-light">
-
-        <div className="card-body text-center">
-
-          <small>Code</small>
-
-          <div className="fw-bold">
-            {viewDoc.code}
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div className="col-md-4">
-
-      <div className="card bg-light">
-
-        <div className="card-body text-center">
-
-          <small>Date</small>
-
-          <div className="fw-bold">
-            {viewDoc.date || "-"}
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div className="col-md-4">
-
-      <div className="card bg-light">
-
-        <div className="card-body text-center">
-
-          <small>Prepared By</small>
-
-          <div className="fw-bold">
-            {viewDoc.preparedBy || "-"}
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div className="mb-3">
-    <div className="accordion mb-3">
-
-  <div className="accordion-item">
-
-    <h2 className="accordion-header">
-
-      <button
-        className="accordion-button collapsed"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#viewerDocInfo"
-      >
-        📋 Document Information
-      </button>
-
-    </h2>
-
-    <div
-      id="viewerDocInfo"
-      className="accordion-collapse collapse"
-    >
-
-      <div className="accordion-body">
-
-        <div className="row">
-
-          <div className="col-md-4">
-
-            <strong>Prepared By</strong>
-
-            <div>
-              {viewDoc.preparedBy || "-"}
+                onClick={() => setViewDoc(null)}
+              >
+                Close
+              </button>
             </div>
 
-          </div>
+            <div className="card-body">
+              <div className="card-body">
+                <div className="row mb-4">
+                  <div className="col-md-4">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <small>Code</small>
 
-          <div className="col-md-4">
+                        <div className="fw-bold">{viewDoc.code}</div>
+                      </div>
+                    </div>
+                  </div>
 
-            <strong>Reviewed By</strong>
+                  <div className="col-md-4">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <small>Date</small>
 
-            <div>
-              {viewDoc.reviewedBy || "-"}
+                        <div className="fw-bold">{viewDoc.date || "-"}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <small>Prepared By</small>
+
+                        <div className="fw-bold">
+                          {viewDoc.preparedBy || "-"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <div className="accordion mb-3">
+                    <div className="accordion-item">
+                      <h2 className="accordion-header">
+                        <button
+                          className="accordion-button collapsed"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#viewerDocInfo"
+                        >
+                          📋 Document Information
+                        </button>
+                      </h2>
+
+                      <div
+                        id="viewerDocInfo"
+                        className="accordion-collapse collapse"
+                      >
+                        <div className="accordion-body">
+                          <div className="row">
+                            <div className="col-md-4">
+                              <strong>Prepared By</strong>
+
+                              <div>{viewDoc.preparedBy || "-"}</div>
+                            </div>
+
+                            <div className="col-md-4">
+                              <strong>Reviewed By</strong>
+
+                              <div>{viewDoc.reviewedBy || "-"}</div>
+                            </div>
+
+                            <div className="col-md-4">
+                              <strong>Approved By</strong>
+
+                              <div>{viewDoc.approvedBy || "-"}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="accordion mb-3">
+                    <div className="accordion-item">
+                      <h2 className="accordion-header">
+                        <button
+                          className="accordion-button collapsed"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#viewerHistory"
+                        >
+                          🕒 Change History
+                        </button>
+                      </h2>
+
+                      <div
+                        id="viewerHistory"
+                        className="accordion-collapse collapse"
+                      >
+                        <div className="accordion-body">
+                          <table className="table table-sm">
+                            <thead>
+                              <tr>
+                                <th>Version</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {viewDoc.changes?.map((change, index) => (
+                                <tr key={index}>
+                                  <td>{change.version}</td>
+                                  <td>{change.description}</td>
+                                  <td>{change.changeDate}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    className="btn btn-success"
+                    onClick={() => handleDownload(viewDoc.code)}
+                  >
+                    📄 Download PDF
+                  </button>
+                </div>
+                <hr />
+
+                <h4 className="mb-3">📄 Document Content</h4>
+
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: viewDoc.content,
+                  }}
+                />
+              </div>
             </div>
-
           </div>
-
-          <div className="col-md-4">
-
-            <strong>Approved By</strong>
-
-            <div>
-              {viewDoc.approvedBy || "-"}
-            </div>
-
-          </div>
-
         </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-<div className="accordion mb-3">
-
-  <div className="accordion-item">
-
-    <h2 className="accordion-header">
-
-      <button
-        className="accordion-button collapsed"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#viewerHistory"
-      >
-        🕒 Change History
-      </button>
-
-    </h2>
-
-    <div
-      id="viewerHistory"
-      className="accordion-collapse collapse"
-    >
-
-      <div className="accordion-body">
-
-        <table className="table table-sm">
-
-          <thead>
-
-            <tr>
-              <th>Version</th>
-              <th>Description</th>
-              <th>Date</th>
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {viewDoc.changes?.map(
-              (change, index) => (
-
-                <tr key={index}>
-                  <td>{change.version}</td>
-                  <td>{change.description}</td>
-                  <td>{change.changeDate}</td>
-                </tr>
-
-              )
-            )}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-    <button
-      className="btn btn-success"
-      onClick={() =>
-        handleDownload(viewDoc.code)
-      }
-    >
-      📄 Download PDF
-    </button>
-
-  </div>
-  <hr />
-
-<h4 className="mb-3">
-  📄 Document Content
-</h4>
-
-  <div
-    dangerouslySetInnerHTML={{
-      __html: viewDoc.content,
-    }}
-  />
-
-</div>
-
-        
-
-      </div>
-
-    </div>
-
-  </div>
-
-)}
+      )}
       {showDeleteModal && (
         <div
           style={{

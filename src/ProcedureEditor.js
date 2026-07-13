@@ -6,11 +6,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 
-function ProcedureEditor({
-  value,
-  onChange,
-}) {
-
+function ProcedureEditor({ value, onChange }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -38,39 +34,30 @@ function ProcedureEditor({
   return (
     <>
       <div className="mb-2">
-
         <button
           className="btn btn-sm btn-outline-secondary me-1"
-          onClick={() =>
-            editor.chain().focus().toggleBold().run()
-          }
+          onClick={() => editor.chain().focus().toggleBold().run()}
         >
           Bold
         </button>
 
         <button
           className="btn btn-sm btn-outline-secondary me-1"
-          onClick={() =>
-            editor.chain().focus().toggleItalic().run()
-          }
+          onClick={() => editor.chain().focus().toggleItalic().run()}
         >
           Italic
         </button>
 
         <button
           className="btn btn-sm btn-outline-secondary me-1"
-          onClick={() =>
-            editor.chain().focus().toggleBulletList().run()
-          }
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
         >
           Bullet
         </button>
 
         <button
           className="btn btn-sm btn-outline-secondary me-1"
-          onClick={() =>
-            editor.chain().focus().toggleOrderedList().run()
-          }
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
         >
           Numbered
         </button>
@@ -91,13 +78,9 @@ function ProcedureEditor({
         >
           Table
         </button>
-
       </div>
 
-      <EditorContent
-        editor={editor}
-        className="border p-3 bg-white"
-      />
+      <EditorContent editor={editor} className="border p-3 bg-white" />
     </>
   );
 }
