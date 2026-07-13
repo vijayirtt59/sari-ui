@@ -10,6 +10,7 @@ function PurchaseOrderPage({ user }) {
     product: "",
     origin: "",
     producer: "",
+    brand: "",
     grade: "",
     quantity: "",
     price: "",
@@ -23,7 +24,6 @@ function PurchaseOrderPage({ user }) {
 
   const [pos, setPos] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [search, setSearch] = useState("");
 
   // LOAD purchase orders
   useEffect(() => {
@@ -43,10 +43,10 @@ function PurchaseOrderPage({ user }) {
   };
 
   const save = () => {
-    if (!data.poNumber || !data.date) {
-      alert("❌ PO Number and Date required");
-      return;
-    }
+    if (!data.date || !data.product) {
+  alert("❌ Date and Product required");
+  return;
+}
 
     const payload = {
       ...data,
@@ -72,6 +72,7 @@ function PurchaseOrderPage({ user }) {
       product: "",
       origin: "",
       producer: "",
+      brand: "",
       grade: "",
       quantity: "",
       price: "",
@@ -102,6 +103,7 @@ function PurchaseOrderPage({ user }) {
       credit: p.credit || "",
       shipment: p.shipment || "",
       notes: p.notes || "",
+      brand: p.brand || "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -110,12 +112,6 @@ function PurchaseOrderPage({ user }) {
     window.open(`${process.env.REACT_APP_API_URL}/po/${id}/pdf`, "_blank");
   };
 
-  const filtered = pos.filter(
-    (p) =>
-      p.poNumber?.toLowerCase().includes(search.toLowerCase()) ||
-      p.product?.toLowerCase().includes(search.toLowerCase()) ||
-      p.producer?.toLowerCase().includes(search.toLowerCase()),
-  );
 
   const action = (id, type) => {
     const username = user.firstName + " " + user.lastName;
@@ -123,6 +119,139 @@ function PurchaseOrderPage({ user }) {
       loadPOs();
     });
   };
+
+  const [products, setProducts] =
+  useState([]);
+
+  const [newProduct, setNewProduct] =
+  useState("");
+
+  useEffect(() => {
+  loadPOs();
+  loadProducts();
+}, []);
+
+const loadProducts = () => {
+  api
+    .get("/products")
+    .then((res) =>
+      setProducts(res.data)
+    );
+};
+
+const handleProductChange = (e) => {
+
+  const productName =
+    e.target.value;
+
+  const product =
+    products.find(
+      p => p.name === productName
+    );
+
+  setData({
+    ...data,
+    product: productName,
+
+    origin:
+      product?.origin || "",
+
+    producer:
+      product?.producer || "",
+
+    grade:
+      product?.grade || "",
+
+    packaging:
+      product?.packaging || "",
+
+    logistics:
+      product?.logistics || "",
+
+    incoterm:
+      product?.incoterm || "",
+
+    credit:
+      product?.credit || "",
+  });
+};
+const selectedProductObject =
+  products.find(
+    p =>
+      p.name ===
+      data.product
+  );
+const isTDI =
+  selectedProductObject
+    ?.templateType ===
+  "TDI";
+
+  const [selectedProductFilter,
+  setSelectedProductFilter] =
+  useState("ALL");
+
+  const filtered =
+  data.product
+    ? pos.filter(
+        p =>
+          p.product === data.product
+      )
+    : pos;
+
+    const clonePO = (p) => {
+
+  setEditingId(null);
+
+  setData({
+
+    poNumber: "",
+
+    date: new Date(),
+
+    product: p.product,
+
+    origin: p.origin,
+
+    producer: p.producer,
+
+    brand: p.brand || "",
+
+    grade: p.grade,
+
+    quantity: "",
+
+    price: "",
+
+    packaging: p.packaging,
+
+    logistics: p.logistics,
+
+    incoterm: p.incoterm,
+
+    credit: p.credit,
+
+    shipment: "",
+
+    notes: p.notes,
+
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
+const [showProductDetails,
+  setShowProductDetails] =
+  useState(false);
+
+const [showLogistics,
+  setShowLogistics] =
+  useState(false);
+
+const [showNotes,
+  setShowNotes] =
+  useState(false);
 
   return (
     <div className="container mt-4">
@@ -138,73 +267,245 @@ function PurchaseOrderPage({ user }) {
           <h5 className="mb-0">Basic Information</h5>
         </div>
         <div className="card-body">
-          <div className="row mb-3">
-            <div className="col-md-4">
-              <label>PO Number (auto)</label>
-              <input className="form-control" value={data.poNumber} readOnly />
-            </div>
-            <div className="col-md-4">
-              <label>Date</label>
-              <DatePicker
-                selected={data.date}
-                onChange={(date) => setData({ ...data, date })}
-                dateFormat="dd/MM/yyyy"
-                className="form-control"
-                placeholderText="Select Date"
-              />
-            </div>
-          </div>
-        </div>
+
+  <div className="row g-3 align-items-end">
+
+    <div className="col-md-4">
+
+      <label className="form-label">
+        PO Number
+      </label>
+
+      <input
+        className="form-control bg-light"
+        value={data.poNumber}
+        readOnly
+      />
+
+    </div>
+
+    <div className="col-md-4">
+
+      <label className="form-label">
+        Date
+      </label>
+
+      <DatePicker
+        selected={data.date}
+        onChange={(date) =>
+          setData({
+            ...data,
+            date,
+          })
+        }
+        dateFormat="dd/MM/yyyy"
+        className="form-control"
+        placeholderText="Select Date"
+      />
+
+    </div>
+
+    <div className="col-md-4">
+
+      <label className="form-label">
+        Product
+      </label>
+
+      <select
+        className="form-control"
+        value={data.product}
+        onChange={handleProductChange}
+      >
+        <option value="">
+          Select Product
+        </option>
+
+        {products.map((p) => (
+          <option
+            key={p.id}
+            value={p.name}
+          >
+            {p.name}
+          </option>
+        ))}
+      </select>
+
+    </div>
+
+  </div>
+
+  <div className="row mt-2">
+
+    <div className="col-md-4">
+
+      <div className="input-group">
+
+        <input
+          className="form-control"
+          placeholder="New Product"
+          value={newProduct}
+          onChange={(e) =>
+            setNewProduct(
+              e.target.value
+            )
+          }
+        />
+
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+
+            if (!newProduct.trim())
+              return;
+
+            api.post(
+              "/products",
+              {
+                name: newProduct,
+                templateType:
+                  "STANDARD"
+              }
+            )
+            .then(() => {
+
+              loadProducts();
+
+              setData({
+                ...data,
+                product: newProduct,
+              });
+
+              setNewProduct("");
+
+            });
+
+          }}
+        >
+          Add
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
       </div>
 
       {/* ========================= */}
       {/* Product Details Section */}
       {/* ========================= */}
       <div className="card mb-4">
-        <div className="card-header bg-info text-white">
-          <h5 className="mb-0">Product Details</h5>
-        </div>
+        <div
+  className="card-header bg-info text-white"
+  style={{ cursor: "pointer" }}
+  onClick={() =>
+    setShowProductDetails(
+      !showProductDetails
+    )
+  }
+>
+
+  <h5 className="mb-0">
+
+    {showProductDetails
+      ? "▼"
+      : "▶"} Product Details
+
+  </h5>
+
+</div>
+{showProductDetails && (
         <div className="card-body">
-          <div className="row mb-3">
-            <div className="col-md-3">
-              <label>Product</label>
-              <input
-                className="form-control"
-                placeholder="Product"
-                value={data.product}
-                onChange={(e) => setData({ ...data, product: e.target.value })}
-              />
-            </div>
-            <div className="col-md-3">
-              <label>Origin</label>
-              <input
-                className="form-control"
-                placeholder="Origin"
-                value={data.origin}
-                onChange={(e) => setData({ ...data, origin: e.target.value })}
-              />
-            </div>
-            <div className="col-md-3">
-              <label>Producer</label>
-              <input
-                className="form-control"
-                placeholder="Producer"
-                value={data.producer}
-                onChange={(e) => setData({ ...data, producer: e.target.value })}
-              />
-            </div>
-            <div className="col-md-3">
-              <label>Grade</label>
-              <input
-                className="form-control"
-                placeholder="Grade"
-                value={data.grade}
-                onChange={(e) => setData({ ...data, grade: e.target.value })}
-              />
-            </div>
+          <div className="row g-3">
+            {isTDI ? (
+
+  <>
+    <div className="col-md-4">
+      <label>Grade</label>
+
+      <input
+        className="form-control"
+        value={data.grade}
+        onChange={(e) =>
+          setData({
+            ...data,
+            grade: e.target.value,
+          })
+        }
+      />
+    </div>
+
+    <div className="col-md-4">
+      <label>Brand</label>
+
+      <input
+        className="form-control"
+        value={data.brand}
+        onChange={(e) =>
+          setData({
+            ...data,
+            brand: e.target.value,
+          })
+        }
+      />
+    </div>
+  </>
+
+) : (
+
+  <>
+    <div className="col-md-4">
+      <label>Origin</label>
+
+      <input
+        className="form-control"
+        value={data.origin}
+        onChange={(e) =>
+          setData({
+            ...data,
+            origin: e.target.value,
+          })
+        }
+      />
+    </div>
+
+    <div className="col-md-4">
+      <label>Producer</label>
+
+      <input
+        className="form-control"
+        value={data.producer}
+        onChange={(e) =>
+          setData({
+            ...data,
+            producer: e.target.value,
+          })
+        }
+      />
+    </div>
+
+    <div className="col-md-4">
+      <label>Grade</label>
+
+      <input
+        className="form-control"
+        value={data.grade}
+        onChange={(e) =>
+          setData({
+            ...data,
+            grade: e.target.value,
+          })
+        }
+      />
+    </div>
+  </>
+
+)}
           </div>
-          <div className="row mb-3">
-            <div className="col-md-3">
+          <div className="row g-3">
+            <div className="col-md-4">
               <label>Quantity (kg)</label>
               <input
                 className="form-control"
@@ -213,7 +514,7 @@ function PurchaseOrderPage({ user }) {
                 onChange={(e) => setData({ ...data, quantity: e.target.value })}
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label>Price (USD/mt)</label>
               <input
                 className="form-control"
@@ -222,8 +523,14 @@ function PurchaseOrderPage({ user }) {
                 onChange={(e) => setData({ ...data, price: e.target.value })}
               />
             </div>
-            <div className="col-md-6">
-              <label>Packaging</label>
+            <div className="col-md-4">
+              <label>
+
+  {isTDI
+    ? "Packing Details"
+    : "Packaging"}
+
+</label>
               <input
                 className="form-control"
                 placeholder="Packaging"
@@ -234,16 +541,33 @@ function PurchaseOrderPage({ user }) {
               />
             </div>
           </div>
-        </div>
+        </div>)}
       </div>
 
       {/* ========================= */}
       {/* Logistics & Terms Section */}
       {/* ========================= */}
       <div className="card mb-4">
-        <div className="card-header bg-warning text-dark">
-          <h5 className="mb-0">Logistics & Terms</h5>
-        </div>
+        <div
+  className="card-header bg-warning text-dark"
+  style={{ cursor: "pointer" }}
+  onClick={() =>
+    setShowLogistics(
+      !showLogistics
+    )
+  }
+>
+
+  <h5 className="mb-0">
+
+    {showLogistics
+      ? "▼"
+      : "▶"} Logistics & Terms
+
+  </h5>
+
+</div>
+{showLogistics && (
         <div className="card-body">
           <div className="mb-3">
             <label>Logistics</label>
@@ -284,16 +608,33 @@ function PurchaseOrderPage({ user }) {
               />
             </div>
           </div>
-        </div>
+        </div>)}
       </div>
 
       {/* ========================= */}
       {/* Notes Section */}
       {/* ========================= */}
       <div className="card mb-4">
-        <div className="card-header bg-light">
-          <h5 className="mb-0">Additional Notes</h5>
-        </div>
+        <div
+  className="card-header bg-secondary text-white"
+  style={{ cursor: "pointer" }}
+  onClick={() =>
+    setShowNotes(
+      !showNotes
+    )
+  }
+>
+
+  <h5 className="mb-0">
+
+    {showNotes
+      ? "▼"
+      : "▶"} Additional Notes
+
+  </h5>
+
+</div>
+{showNotes && (
         <div className="card-body">
           <div className="mb-3">
             <label>Notes</label>
@@ -305,7 +646,7 @@ function PurchaseOrderPage({ user }) {
               onChange={(e) => setData({ ...data, notes: e.target.value })}
             />
           </div>
-        </div>
+        </div>)}
       </div>
 
       {/* ========================= */}
@@ -330,16 +671,26 @@ function PurchaseOrderPage({ user }) {
       <div className="card shadow mt-4">
         <div className="card-header bg-dark text-white d-flex justify-content-between">
           <h5 className="mb-0">Purchase Orders</h5>
-          <input
-            className="form-control w-25"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div>
+
+  <span className="badge bg-light text-dark">
+
+    {filtered.length} POs
+
+  </span>
+
+</div>
         </div>
         <div className="card-body">
           {filtered.map((p) => (
-            <div key={p.id} className="border rounded p-3 mb-3">
+            <div
+  key={p.id}
+  className="border rounded p-3 mb-3"
+  style={{
+    cursor: "pointer"
+  }}
+  onClick={() => clonePO(p)}
+>
               {/* Header */}
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <div>
@@ -366,44 +717,64 @@ function PurchaseOrderPage({ user }) {
               </div>
               {/* Actions */}
               <div className="d-flex gap-2 flex-wrap">
-                <button
-                  className="btn btn-sm btn-outline-primary"
-                  onClick={() => edit(p)}
-                >
-                  Edit
-                </button>
-                {p.status === "DRAFT" && (
-                  <button
-                    className="btn btn-sm btn-primary"
-                    onClick={() => action(p.id, "SEND")}
-                  >
-                    Send
-                  </button>
-                )}
-                {p.status === "SENT" && (
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() => action(p.id, "APPROVE")}
-                  >
-                    Approve
-                  </button>
-                )}
-                {p.status === "APPROVED" && (
-                  <button
-                    className="btn btn-sm btn-dark"
-                    onClick={() => action(p.id, "CLOSE")}
-                  >
-                    Close
-                  </button>
-                )}
-                {/* PDF */}
-                <button
-                  className="btn btn-sm btn-outline-success"
-                  onClick={() => downloadPdf(p.id)}
-                >
-                  PDF
-                </button>
-              </div>
+
+  <button
+    className="btn btn-sm btn-outline-primary"
+    onClick={(e) => {
+      e.stopPropagation();
+      edit(p);
+    }}
+  >
+    Edit
+  </button>
+
+  {p.status === "DRAFT" && (
+    <button
+      className="btn btn-sm btn-primary"
+      onClick={(e) => {
+        e.stopPropagation();
+        action(p.id, "SEND");
+      }}
+    >
+      Send
+    </button>
+  )}
+
+  {p.status === "SENT" && (
+    <button
+      className="btn btn-sm btn-success"
+      onClick={(e) => {
+        e.stopPropagation();
+        action(p.id, "APPROVE");
+      }}
+    >
+      Approve
+    </button>
+  )}
+
+  {p.status === "APPROVED" && (
+    <button
+      className="btn btn-sm btn-dark"
+      onClick={(e) => {
+        e.stopPropagation();
+        action(p.id, "CLOSE");
+      }}
+    >
+      Close
+    </button>
+  )}
+
+  <button
+    className="btn btn-sm btn-outline-success"
+    onClick={(e) => {
+      e.stopPropagation();
+      downloadPdf(p.id);
+    }}
+  >
+    PDF
+  </button>
+
+</div>
             </div>
           ))}
         </div>
