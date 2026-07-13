@@ -9,4 +9,6 @@ export const businessRoleLabels = {
   RESPONSIBLE_DE_SISTEMAS: "Responsable de Sistemas",
   REPRESENTANTE_LEGAL:
     "Representante legal (responsable de Seguridad e higiene)",
+  VENTAS: "Ventas",
+  COMPRAS: "Compras",
 };

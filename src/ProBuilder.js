@@ -992,6 +992,12 @@ function ProBuilder({ user }) {
                                   Representante legal (responsable de Seguridad
                                   e higiene)
                                 </option>
+                                <option value="VENTAS">
+                                  Ventas
+                                </option>
+                                <option value="COMPRAS">
+                                  Compras
+                                </option>
                               </select>
                             </td>
 
