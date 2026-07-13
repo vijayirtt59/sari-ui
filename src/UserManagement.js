@@ -128,8 +128,27 @@ function UserManagement() {
                         Representante legal (responsable de Seguridad e higiene)
                       </option>
                       <option value="VENTAS">Ventas</option>
-                      
+
                       <option value="COMPRAS">Compras</option>
+                      <option value="COLABORADOR_ENVIA_CORREO">
+                        Colaborador que envía el correo
+                      </option>
+                      <option value="RESPONSABLE_ADMINISTRACION">
+                        Responsable de Administración
+                      </option>
+                      <option value="AREA_GENERADO">
+                        El área que lo haya generado
+                      </option>
+                      <option value="RESPONSABLE_LOGISTICA">
+                        Responsable de Logística
+                      </option>
+                      <option value="RESPONSABLE_SEGURIDAD_HIGIENE">
+                        Responsable de seguridad e higiene (vocero)
+                      </option>
+                      <option value="RESPONSABLE_RH">Responsable de RH</option>
+                      <option value="RESPONSABLE_SEGURIDAD">
+                        Responsable de seguridad
+                      </option>
 
                       <option value="DIRECCION_GENERAL">
                         Dirección General
